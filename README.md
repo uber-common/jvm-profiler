@@ -1,4 +1,4 @@
-Intruction
+Introduction
 ============
 Uber JVM Profiler provides a Java Agent to collect various metrics and stacktraces for Java processes. It is initially
 created to profile Spark applications which usually have dozens of processes for a single application. However
