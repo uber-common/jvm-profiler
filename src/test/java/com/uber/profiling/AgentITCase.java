@@ -36,7 +36,7 @@ public class AgentITCase {
 
         String agentJar = getAgentJarPath();
         
-        String outputDir = Files.createTempDirectory("ujagent_test_output").toString();
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
         System.out.println("outputDir: " + outputDir);
         
         ProcessBuilder pb = new ProcessBuilder(

@@ -81,7 +81,7 @@ public class FileOutputReporter implements Reporter {
         synchronized (this) {
             if (directory == null || directory.isEmpty()) {
                 try {
-                    directory = Files.createTempDirectory("ujagent_").toString();
+                    directory = Files.createTempDirectory("jvm_profiler_").toString();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
