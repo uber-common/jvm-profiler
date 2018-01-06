@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Uber JVM Profiler may depend on the following library:
+Uber JVM Profiler depends on the following library:
 
 statsd-jvm-profiler
 Copyright (c) 2014-2016 Etsy
