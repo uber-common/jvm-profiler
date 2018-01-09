@@ -11,5 +11,21 @@ This product may include software developed by
 etsy (https://github.com/etsy/statsd-jvm-profiler).
 Licensed under the MIT License.
 
+This product depends on software developed by 
+Javassist (http://jboss-javassist.github.io/javassist/).
+Licensed under the Apache License.
+
+This product depends on software developed by 
+Javassist (http://jboss-javassist.github.io/javassist/).
+Licensed under the Apache License.
+
+This product depends on software developed by 
+FasterXML (https://github.com/FasterXML).
+Licensed under the Apache License.
+
+This product depends on software developed by 
+JUnit (http://junit.org/junit4).
+Licensed under the Eclipse Public License.
+
 II. License Summary
 - Apache License 2.0
