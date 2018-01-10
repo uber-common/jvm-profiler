@@ -19,6 +19,15 @@ Following command will start the example application with the profiler agent att
 java -javaagent:target/jvm-profiler-0.0.3.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-0.0.3.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 
+## Send Metrics to Kafka
+
+Uber JVM Profiler supports sending metrics to Kafka. For example,
+
+```
+java -javaagent:target/jvm-profiler-0.0.3.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-0.0.3.jar com.uber.profiling.examples.HelloWorldApplication
+```
+It will send metrics to Kafka topic profiler_CpuAndMemory. See bottom of this document for an example of the metrics.
+
 ## Feature List
 
 Uber JVM Profiler supports following features:
@@ -58,4 +67,116 @@ The java agent supports following parameters, which could be used in Java comman
 - topicPrefix: topic prefix if using com.uber.profiling.reporters.KafkaOutputReporter. KafkaOutputReporter will send metrics to multiple topics with this value as the prefix for topic names.
 
 
+## TODO
 
+We are working on setting up CI for the project, and will allow external contributors after that.
+
+## Metrics Example
+
+Following is an example of CPU and Memory metrics when using ConsoleOutputReporter or KafkaOutputReporter:
+
+```json
+{
+	"nonHeapMemoryTotalUsed": 11890584.0,
+	"bufferPools": [
+		{
+			"totalCapacity": 0,
+			"name": "direct",
+			"count": 0,
+			"memoryUsed": 0
+		},
+		{
+			"totalCapacity": 0,
+			"name": "mapped",
+			"count": 0,
+			"memoryUsed": 0
+		}
+	],
+	"heapMemoryTotalUsed": 24330736.0,
+	"epochMillis": 1515627003374,
+	"nonHeapMemoryCommitted": 13565952.0,
+	"heapMemoryCommitted": 257425408.0,
+	"memoryPools": [
+		{
+			"peakUsageMax": 251658240,
+			"usageMax": 251658240,
+			"peakUsageUsed": 1194496,
+			"name": "Code Cache",
+			"peakUsageCommitted": 2555904,
+			"usageUsed": 1173504,
+			"type": "Non-heap memory",
+			"usageCommitted": 2555904
+		},
+		{
+			"peakUsageMax": -1,
+			"usageMax": -1,
+			"peakUsageUsed": 9622920,
+			"name": "Metaspace",
+			"peakUsageCommitted": 9830400,
+			"usageUsed": 9622920,
+			"type": "Non-heap memory",
+			"usageCommitted": 9830400
+		},
+		{
+			"peakUsageMax": 1073741824,
+			"usageMax": 1073741824,
+			"peakUsageUsed": 1094160,
+			"name": "Compressed Class Space",
+			"peakUsageCommitted": 1179648,
+			"usageUsed": 1094160,
+			"type": "Non-heap memory",
+			"usageCommitted": 1179648
+		},
+		{
+			"peakUsageMax": 1409286144,
+			"usageMax": 1409286144,
+			"peakUsageUsed": 24330736,
+			"name": "PS Eden Space",
+			"peakUsageCommitted": 67108864,
+			"usageUsed": 24330736,
+			"type": "Heap memory",
+			"usageCommitted": 67108864
+		},
+		{
+			"peakUsageMax": 11010048,
+			"usageMax": 11010048,
+			"peakUsageUsed": 0,
+			"name": "PS Survivor Space",
+			"peakUsageCommitted": 11010048,
+			"usageUsed": 0,
+			"type": "Heap memory",
+			"usageCommitted": 11010048
+		},
+		{
+			"peakUsageMax": 2863661056,
+			"usageMax": 2863661056,
+			"peakUsageUsed": 0,
+			"name": "PS Old Gen",
+			"peakUsageCommitted": 179306496,
+			"usageUsed": 0,
+			"type": "Heap memory",
+			"usageCommitted": 179306496
+		}
+	],
+	"processCpuLoad": 0.0008024004394748531,
+	"systemCpuLoad": 0.23138430784607697,
+	"processCpuTime": 496918000,
+	"appId": null,
+	"name": "24103@machine01",
+	"host": "machine01",
+	"processUuid": "3c2ec835-749d-45ea-a7ec-e4b9fe17c23a",
+	"tag": "mytag",
+	"gc": [
+		{
+			"collectionTime": 0,
+			"name": "PS Scavenge",
+			"collectionCount": 0
+		},
+		{
+			"collectionTime": 0,
+			"name": "PS MarkSweep",
+			"collectionCount": 0
+		}
+	]
+}
+```
