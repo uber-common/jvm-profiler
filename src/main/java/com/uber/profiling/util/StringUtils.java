@@ -19,7 +19,9 @@ package com.uber.profiling.util;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +29,8 @@ public class StringUtils {
     private static final int KB_SIZE = 1024;
     private static final int MB_SIZE = 1024 * 1024;
     private static final int GB_SIZE = 1024 * 1024 * 1024;
+
+    private final static int ARGUMENT_VALUE_COUNT_LIMIT = 10000;
     
     public static List<String> splitByLength(String str, int length) {
         if (length <= 0) {
@@ -107,6 +111,126 @@ public class StringUtils {
             return (long)(doubleValue * scale);
         } catch (Throwable ex) {
             return null;
+        }
+    }
+    
+    public static String getArgumentValue(String str, String argument) {
+        if (str == null || str.isEmpty() || argument == null || argument.isEmpty()) {
+            return null;
+        }
+
+        String[] values = getArgumentValues(str, argument, 1);
+
+        if (values.length == 0) {
+            return null;
+        }
+        
+        return values[0];
+    }
+
+    public static String[] getArgumentValues(String str, String argument) {
+        return getArgumentValues(str, argument, ARGUMENT_VALUE_COUNT_LIMIT);
+    }
+
+    private static String[] getArgumentValues(String str, String argument, int maxCount) {
+        if (str == null || str.isEmpty() || argument == null || argument.isEmpty()) {
+            return new String[0];
+        }
+
+        if (maxCount > ARGUMENT_VALUE_COUNT_LIMIT) {
+            throw new RuntimeException("Does not support values more than " + ARGUMENT_VALUE_COUNT_LIMIT);
+        }
+            
+        List<String> list = new ArrayList<>();
+
+        int startIndex = 0;
+        
+        for (int index = str.indexOf(argument, startIndex); index >= 0; index = str.indexOf(argument, startIndex)) {
+            int argumentValueStartIndex = index + argument.length();
+            StringValueAndIndex stringValueAndIndex = getArgumentValueString(str, argumentValueStartIndex);
+            list.add(stringValueAndIndex.str);
+
+            if (stringValueAndIndex.endIndex < 0 || stringValueAndIndex.endIndex >= str.length() - 1) {
+                break;
+            }
+
+            if (list.size() >= maxCount) {
+                break;
+            }
+            
+            startIndex = stringValueAndIndex.endIndex + 1;
+
+            if (startIndex <= argumentValueStartIndex) {
+                break;
+            }
+        }
+
+        return list.toArray(new String[list.size()]);
+    }
+    
+    private static StringValueAndIndex getArgumentValueString(String str, int startIndex) {
+        if (startIndex >= str.length()) {
+            return new StringValueAndIndex("", 0);
+        }
+
+        boolean valueStarted = false;
+        char endingCharacter = 0;
+        StringBuilder sb = new StringBuilder();
+        int endingIndex = -1;
+        
+        // TODO handle character escape
+        
+        for (int i = startIndex; i < str.length(); i++) {
+            char ch = str.charAt(i);
+
+            if (!valueStarted) {
+                if (Character.isWhitespace(ch)) {
+                    continue;
+                } else if (ch == '\'' || ch == '"') {
+                    valueStarted = true;
+                    endingCharacter = ch;
+                } else {
+                    valueStarted = true;
+                    sb.append(ch);
+                }
+            } else {
+                if (Character.isWhitespace(ch)) {
+                    if (endingCharacter == 0) {
+                        endingIndex = i - 1;
+                        break;
+                    } else {
+                        sb.append(ch);
+                    }
+                } else if (ch == '\'' || ch == '"') {
+                    if (ch == endingCharacter) {
+                        endingIndex = i;
+                        break;
+                    } else {
+                        sb.append(ch);
+                    }
+                } else {
+                    sb.append(ch);
+                }
+            }
+        }
+        
+        if (!valueStarted) {
+            return new StringValueAndIndex("", 0);
+        } else {
+            if (endingIndex == -1) {
+                endingIndex = str.length() - 1;
+            }
+            return new StringValueAndIndex(sb.toString(), endingIndex);
+        }
+    }
+    
+    static class StringValueAndIndex {
+        private String str;
+        private int endIndex;
+
+        public StringValueAndIndex(String str, int endIndex) {
+            this.str = str;
+            this.endIndex = endIndex;
         }
     }
 }

@@ -96,4 +96,44 @@ public class StringUtilsTest {
         Assert.assertEquals(123L, StringUtils.getBytesValueOrNull("123bytes").longValue());
         Assert.assertEquals(123L, StringUtils.getBytesValueOrNull("123 Bytes").longValue());
     }
+
+    @Test
+    public void getArgumentValue() {
+        Assert.assertEquals(null, StringUtils.getArgumentValue(null, null));
+        Assert.assertEquals(null, StringUtils.getArgumentValue(null, ""));
+        Assert.assertEquals(null, StringUtils.getArgumentValue("", null));
+
+
+        Assert.assertEquals(null, StringUtils.getArgumentValue("", ""));
+        Assert.assertEquals(null, StringUtils.getArgumentValue("test", ""));
+        Assert.assertEquals(null, StringUtils.getArgumentValue("", "test"));
+
+
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue("--class com.foo.jobs.Abc", "--class"));
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue(" --class  com.foo.jobs.Abc ", "--class"));
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue(" --class  com.foo.jobs.Abc ", "--class"));
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue(" --class  'com.foo.jobs.Abc' ", "--class"));
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue(" --class  \"com.foo.jobs.Abc\" ", "--class"));
+        Assert.assertEquals(" com.foo.jobs.Abc ", StringUtils.getArgumentValue(" --class  ' com.foo.jobs.Abc ' ", "--class"));
+        
+        Assert.assertEquals("com.foo.jobs.Abc", StringUtils.getArgumentValue("xyz --class com.foo.jobs.Abc --jar file:/home/test/hi.jar --others world", "--class"));
+    }
+
+    @Test
+    public void getArgumentValues() {
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues(null, null));
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues(null, ""));
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues("", null));
+
+
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues("", ""));
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues("test", ""));
+        Assert.assertArrayEquals(new String[0], StringUtils.getArgumentValues("", "test"));
+
+
+        Assert.assertArrayEquals(new String[]{"com.foo.jobs.Abc"}, StringUtils.getArgumentValues("--class com.foo.jobs.Abc", "--class"));
+        Assert.assertArrayEquals(new String[]{"com.foo.jobs.Abc", "com.foo.jobs.Abc", " com.foo.jobs.Abc "}, StringUtils.getArgumentValues(" --class  \"com.foo.jobs.Abc\"  --class com.foo.jobs.Abc --class  ' com.foo.jobs.Abc ' ", "--class"));
+
+        Assert.assertArrayEquals(new String[]{"com.foo.jobs.Abc"}, StringUtils.getArgumentValues("xyz --class com.foo.jobs.Abc --jar file:/home/test/hi.jar --others world", "--class"));
+    }
 }

@@ -21,6 +21,8 @@ import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ProcessUtils;
+import com.uber.profiling.util.SparkAppCmdInfo;
+import com.uber.profiling.util.SparkUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -57,7 +59,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
     @Override
     public void profile() {
         Map<String, Object> map = new HashMap<String, Object>();
-
+        
         map.put("agentVersion", AgentImpl.VERSION);
         
         map.put("epochMillis", System.currentTimeMillis());
@@ -70,6 +72,17 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
             map.put("tag", getTag());
         }
 
+        // TODO support non spark application
+        // TODO also possible to use SparkContext to get spark jar/class info
+        
+        SparkAppCmdInfo cmdInfo = SparkUtils.probeCmdInfo();
+        if (cmdInfo != null) {
+            map.put("appJar", cmdInfo.getAppJar());
+            map.put("appClass", cmdInfo.getAppClass());
+            
+            // TODO add app arguments
+        }
+        
         if (getRole() != null) {
             map.put("role", getRole());
         }

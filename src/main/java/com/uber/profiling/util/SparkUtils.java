@@ -78,4 +78,19 @@ public class SparkUtils {
             return null;
         }
     }
+    
+    public static SparkAppCmdInfo probeCmdInfo() {
+        // TODO use /proc file system to get command when the system property is not available
+        String cmd = System.getProperty("sun.java.command");
+        if (cmd == null || cmd.isEmpty()) {
+            return null;
+        }
+
+        SparkAppCmdInfo result = new SparkAppCmdInfo();
+
+        result.setAppJar(StringUtils.getArgumentValue(cmd, "--jar"));
+        result.setAppClass(StringUtils.getArgumentValue(cmd, "--class"));
+        
+        return result;
+    }
 }
