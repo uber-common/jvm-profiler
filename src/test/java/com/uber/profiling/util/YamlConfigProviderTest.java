@@ -16,15 +16,19 @@
 
 package com.uber.profiling.util;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -89,5 +93,63 @@ public class YamlConfigProviderTest {
             Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
             Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
         }
+    }
+
+    @Test
+    public void getConfigFromBadHttpUrl() throws IOException {
+        YamlConfigProvider provider = new YamlConfigProvider("http://localhost/bad_url");
+        Map<String, Map<String, List<String>>> config = provider.getConfig();
+        Assert.assertEquals(0, config.size());
+    }
+    
+    @Test
+    public void getConfigFromHttp() throws IOException {
+        ServerSocket socket = new ServerSocket(0);
+        int port = socket.getLocalPort();
+        socket.close();
+
+        String content = "key1: value1\n" +
+                "key2:\n" +
+                "- value2a\n" +
+                "- value2b\n" +
+                "override:\n" +
+                "  override1: \n" +
+                "    key1: value11\n" +
+                "    key2:\n" +
+                "    - value22a\n" +
+                "    - value22b\n" +
+                "";
+        
+        HttpHandler handler = new HttpHandler() {
+            public void handle(HttpExchange exchange) throws IOException {
+                byte[] response = content.getBytes();
+                exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK,
+                        response.length);
+                exchange.getResponseBody().write(response);
+                exchange.close();
+            }
+        };
+
+        
+        InetSocketAddress address = new InetSocketAddress(port);
+        HttpServer httpServer = HttpServer.create(address, 0);
+        httpServer.createContext("/test", handler);
+        httpServer.start();
+
+        String url = String.format("http://localhost:%s/test", port);
+
+        YamlConfigProvider provider = new YamlConfigProvider(url);
+        Map<String, Map<String, List<String>>> config = provider.getConfig();
+        Assert.assertEquals(2, config.size());
+
+        Map<String, List<String>> rootConfig = config.get("");
+        Assert.assertEquals(2, rootConfig.size());
+        Assert.assertEquals(Arrays.asList("value1"), rootConfig.get("key1"));
+        Assert.assertEquals(Arrays.asList("value2a", "value2b"), rootConfig.get("key2"));
+
+        Map<String, List<String>> override1Config = config.get("override1");
+        Assert.assertEquals(2, override1Config.size());
+        Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
+        Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
     }
 }

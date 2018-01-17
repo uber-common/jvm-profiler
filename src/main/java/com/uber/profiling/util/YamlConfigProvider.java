@@ -16,24 +16,26 @@
 
 package com.uber.profiling.util;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import org.yaml.snakeyaml.Yaml;
 
 public class YamlConfigProvider implements ConfigProvider {
     private static final AgentLogger logger = AgentLogger.getLogger(YamlConfigProvider.class.getName());
     
     private static final String OVERRIDE_KEY = "override";
+    public static final int OK_CODE = 200;
     
     private String filePath;
 
@@ -51,11 +53,24 @@ public class YamlConfigProvider implements ConfigProvider {
             logger.warn("Empty YAML config file path");
             return new HashMap<>();
         }
+
+        byte[] bytes;
+        
+        try {
+            String filePathLowerCase = filePath.toLowerCase();
+            if (filePathLowerCase.startsWith("http://") || filePathLowerCase.startsWith("https://")) {
+                bytes = getHttp(filePath);
+            } else {
+                bytes = Files.readAllBytes(Paths.get(filePath));
+            }
+        } catch (Throwable e) {
+            logger.warn("Failed to read file: " + filePath, e);
+            return new HashMap<>();
+        }
         
         Map<String, Map<String, List<String>>> result = new HashMap<>();
         
         try {
-            byte[] bytes = Files.readAllBytes(Paths.get(filePath));
             try (ByteArrayInputStream stream = new ByteArrayInputStream(bytes)) {
                 Yaml yaml = new Yaml();
                 Object yamlObj = yaml.load(stream);
@@ -113,7 +128,7 @@ public class YamlConfigProvider implements ConfigProvider {
 
                 return result;
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             logger.warn("Failed to read config file: " + filePath, e);
             return new HashMap<>();
         }
@@ -133,6 +148,27 @@ public class YamlConfigProvider implements ConfigProvider {
             }
         } else {
             configValueList.add(value.toString());
+        }
+    }
+
+    private byte[] getHttp(String url) {
+        try {
+            logger.debug(String.format("Getting url: %s", url));
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                HttpGet httpGet = new HttpGet(url);
+                try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+                    int statusCode = httpResponse.getStatusLine().getStatusCode();
+                    if (statusCode != HttpURLConnection.HTTP_OK) {
+                        logger.warn("Failed getting url: " + url + ", response code: " + statusCode);
+                        return new byte[0];
+                    }
+                    return IOUtils.toByteArray(httpResponse.getEntity().getContent());
+                }
+            }
+        }
+        catch (Throwable ex) {
+            logger.warn("Failed getting url: " + url, ex);
+            return new byte[0];
         }
     }
 }

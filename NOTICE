@@ -27,5 +27,9 @@ This product depends on software developed by
 JUnit (http://junit.org/junit4).
 Licensed under the Eclipse Public License.
 
+This product depends on software developed by 
+Andrey Somov (https://bitbucket.org/asomov/snakeyaml).
+Licensed under the Apache License.
+
 II. License Summary
 - Apache License 2.0
