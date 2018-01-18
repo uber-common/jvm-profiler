@@ -71,6 +71,7 @@ public class YamlConfigProvider implements ConfigProvider {
             } else {
                 bytes = Files.readAllBytes(Paths.get(filePath));
             }
+            logger.info("Read YAML config from: " + filePath);
         } catch (Throwable e) {
             logger.warn("Failed to read file: " + filePath, e);
             return new HashMap<>();
