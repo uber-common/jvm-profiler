@@ -61,8 +61,8 @@ public class YamlConfigProvider implements ConfigProvider {
         return getConfig(filePath);
     }
     
-    private Map<String, Map<String, List<String>>> getConfig(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
+    private static Map<String, Map<String, List<String>>> getConfig(String configFilePathOrUrl) {
+        if (configFilePathOrUrl == null || configFilePathOrUrl.isEmpty()) {
             logger.warn("Empty YAML config file path");
             return new HashMap<>();
         }
@@ -72,17 +72,17 @@ public class YamlConfigProvider implements ConfigProvider {
         try {
             bytes = new ExponentialBackoffRetryPolicy<byte[]>(3, 100)
                     .attempt(() -> {
-                        String filePathLowerCase = filePath.toLowerCase();
+                        String filePathLowerCase = configFilePathOrUrl.toLowerCase();
                         if (filePathLowerCase.startsWith("http://") || filePathLowerCase.startsWith("https://")) {
-                            return getHttp(filePath);
+                            return getHttp(configFilePathOrUrl);
                         } else {
-                            return Files.readAllBytes(Paths.get(filePath));
+                            return Files.readAllBytes(Paths.get(configFilePathOrUrl));
                         }
                     });
             
-            logger.info("Read YAML config from: " + filePath);
+            logger.info("Read YAML config from: " + configFilePathOrUrl);
         } catch (Throwable e) {
-            logger.warn("Failed to read file: " + filePath, e);
+            logger.warn("Failed to read file: " + configFilePathOrUrl, e);
             return new HashMap<>();
         }
 
@@ -151,12 +151,12 @@ public class YamlConfigProvider implements ConfigProvider {
                 return result;
             }
         } catch (Throwable e) {
-            logger.warn("Failed to read config file: " + filePath, e);
+            logger.warn("Failed to read config file: " + configFilePathOrUrl, e);
             return new HashMap<>();
         }
     }
     
-    private void addConfig(Map<String, Map<String, List<String>>> config, String override, String key, Object value) {
+    private static void addConfig(Map<String, Map<String, List<String>>> config, String override, String key, Object value) {
         Map<String, List<String>> configMap = config.computeIfAbsent(override, k -> new HashMap<>());
         List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());
         
@@ -173,7 +173,7 @@ public class YamlConfigProvider implements ConfigProvider {
         }
     }
 
-    private byte[] getHttp(String url) {
+    private static byte[] getHttp(String url) {
         try {
             logger.debug(String.format("Getting url: %s", url));
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -181,8 +181,7 @@ public class YamlConfigProvider implements ConfigProvider {
                 try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
                     int statusCode = httpResponse.getStatusLine().getStatusCode();
                     if (statusCode != HttpURLConnection.HTTP_OK) {
-                        logger.warn("Failed getting url: " + url + ", response code: " + statusCode);
-                        return new byte[0];
+                        throw new RuntimeException("Failed response from url: " + url + ", response code: " + statusCode);
                     }
                     // TODO handle charset encoding
                     return IOUtils.toByteArray(httpResponse.getEntity().getContent());
@@ -190,8 +189,7 @@ public class YamlConfigProvider implements ConfigProvider {
             }
         }
         catch (Throwable ex) {
-            logger.warn("Failed getting url: " + url, ex);
-            return new byte[0];
+            throw new RuntimeException("Failed getting url: " + url, ex);
         }
     }
 }
