@@ -255,8 +255,7 @@ public class Arguments {
                 ConfigProvider configProvider = configProviderConstructor.newInstance();
                 if (configProvider instanceof YamlConfigProvider) {
                     if (configFile == null || configFile.isEmpty()) {
-                        logger.warn("Argument configFile is empty, cannot use " + configProvider.getClass());
-                        return new DummyConfigProvider();
+                        throw new RuntimeException("Argument configFile is empty, cannot use " + configProvider.getClass());
                     }
                     ((YamlConfigProvider)configProvider).setFilePath(configFile);
                     return configProvider;

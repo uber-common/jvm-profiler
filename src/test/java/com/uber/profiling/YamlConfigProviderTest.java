@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.uber.profiling.util;
+package com.uber.profiling;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -37,16 +37,6 @@ import java.util.Map;
 public class YamlConfigProviderTest {
     @Test
     public void getConfig() throws IOException {
-        {
-            YamlConfigProvider provider = new YamlConfigProvider(null);
-            Assert.assertEquals(0, provider.getConfig().size());
-        }
-
-        {
-            YamlConfigProvider provider = new YamlConfigProvider("");
-            Assert.assertEquals(0, provider.getConfig().size());
-        }
-
         {
             YamlConfigProvider provider = new YamlConfigProvider("not_exiting_file");
             Assert.assertEquals(0, provider.getConfig().size());

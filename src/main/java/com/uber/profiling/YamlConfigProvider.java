@@ -17,6 +17,7 @@
 package com.uber.profiling;
 
 import com.uber.profiling.util.AgentLogger;
+import com.uber.profiling.util.ExponentialBackoffRetryPolicy;
 import com.uber.profiling.util.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -44,10 +45,14 @@ public class YamlConfigProvider implements ConfigProvider {
     }
     
     public YamlConfigProvider(String filePath) {
-        this.filePath = filePath;
+        setFilePath(filePath);
     }
 
     public void setFilePath(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            throw new IllegalArgumentException("filePath cannot be null or empty");
+        }
+        
         this.filePath = filePath;
     }
 
@@ -65,18 +70,22 @@ public class YamlConfigProvider implements ConfigProvider {
         byte[] bytes;
         
         try {
-            String filePathLowerCase = filePath.toLowerCase();
-            if (filePathLowerCase.startsWith("http://") || filePathLowerCase.startsWith("https://")) {
-                bytes = getHttp(filePath);
-            } else {
-                bytes = Files.readAllBytes(Paths.get(filePath));
-            }
+            bytes = new ExponentialBackoffRetryPolicy<byte[]>(3, 100)
+                    .attempt(() -> {
+                        String filePathLowerCase = filePath.toLowerCase();
+                        if (filePathLowerCase.startsWith("http://") || filePathLowerCase.startsWith("https://")) {
+                            return getHttp(filePath);
+                        } else {
+                            return Files.readAllBytes(Paths.get(filePath));
+                        }
+                    });
+            
             logger.info("Read YAML config from: " + filePath);
         } catch (Throwable e) {
             logger.warn("Failed to read file: " + filePath, e);
             return new HashMap<>();
         }
-        
+
         if (bytes == null || bytes.length == 0) {
             return new HashMap<>();
         }
