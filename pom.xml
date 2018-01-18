@@ -62,6 +62,18 @@
             <version>3.21.0-GA</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.18</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+        </dependency>
+
 		<!--Test-->
         <dependency>
             <groupId>junit</groupId>
@@ -200,6 +212,10 @@
                                 <relocation>
                                     <pattern>com.shade</pattern>
                                     <shadedPattern>ujagent_shaded.com.shade</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.yaml</pattern>
+                                    <shadedPattern>ujagent_org.yaml</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>ch</pattern>

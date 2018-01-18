@@ -22,6 +22,7 @@ import com.uber.profiling.reporters.KafkaOutputReporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassMethodArgument;
+import com.uber.profiling.util.DummyConfigProvider;
 import com.uber.profiling.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -36,6 +37,8 @@ public class Arguments {
     public final static long DEFAULT_SAMPLE_INTERVAL = 100;
 
     public final static String ARG_REPORTER = "reporter";
+    public final static String ARG_CONFIG_PROVIDER = "configProvider";
+    public final static String ARG_CONFIG_FILE = "configFile";
     public final static String ARG_METRIC_INTERVAL = "metricInterval";
     public final static String ARG_SAMPLE_INTERVAL = "sampleInterval";
     public final static String ARG_TAG = "tag";
@@ -58,6 +61,9 @@ public class Arguments {
     private Map<String, List<String>> rawArgValues = new HashMap<>();
 
     private Constructor<Reporter> reporterConstructor;
+    private Constructor<ConfigProvider> configProviderConstructor;
+    private String configFile;
+    
     private String appIdRegex = DEFAULT_APP_ID_REGEX;
     private long metricInterval = DEFAULT_METRIC_INTERVAL;
     private long sampleInterval = 0L;
@@ -72,6 +78,43 @@ public class Arguments {
     private List<ClassMethodArgument> argumentProfiling = new ArrayList<>();
 
     private Arguments(Map<String, List<String>> parsedArgs) {
+        updateArguments(parsedArgs);
+    }
+
+    public static Arguments parseArgs(String args) {
+        if (args == null) {
+            return new Arguments(new HashMap<>());
+        }
+
+        args = args.trim();
+        if (args.isEmpty()) {
+            return new Arguments(new HashMap<>());
+        }
+
+        Map<String, List<String>> map = new HashMap<>();
+        for (String argPair : args.split(",")) {
+            String[] strs = argPair.split("=");
+            if (strs.length != 2) {
+                throw new IllegalArgumentException("Arguments for the agent should be like: key1=value1,key2=value2");
+            }
+
+            String key = strs[0].trim();
+            if (key.isEmpty()) {
+                throw new IllegalArgumentException("Argument key should not be empty");
+            }
+
+            List<String> list = map.get(key);
+            if (list == null) {
+                list = new ArrayList<>();
+                map.put(key, list);
+            }
+            list.add(strs[1].trim());
+        }
+
+        return new Arguments(map);
+    }
+
+    public void updateArguments(Map<String, List<String>> parsedArgs) {
         rawArgValues.putAll(parsedArgs);
 
         String argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
@@ -79,6 +122,16 @@ public class Arguments {
             reporterConstructor = ReflectionUtils.getConstructor(argValue, Reporter.class);
         }
 
+        argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_PROVIDER);
+        if (argValue != null && !argValue.isEmpty()) {
+            configProviderConstructor = ReflectionUtils.getConstructor(argValue, ConfigProvider.class);
+        }
+
+        argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_FILE);
+        if (argValue != null && !argValue.isEmpty()) {
+            configFile = argValue;
+        }
+        
         argValue = getArgumentSingleValue(parsedArgs, ARG_METRIC_INTERVAL);
         if (argValue != null && !argValue.isEmpty()) {
             metricInterval = Long.parseLong(argValue);
@@ -98,7 +151,7 @@ public class Arguments {
         if (sampleInterval != 0 && sampleInterval < MIN_INTERVAL_MILLIS) {
             throw new RuntimeException("Sample interval too short, must be 0 (disable sampling) or at least " + Arguments.MIN_INTERVAL_MILLIS);
         }
-        
+
         tag = getArgumentSingleValue(parsedArgs, ARG_TAG);
         logger.info("Got argument value for tag: " + tag);
 
@@ -153,7 +206,7 @@ public class Arguments {
 
         topicPrefix = getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
         logger.info("Got argument value for topicPrefix: " + topicPrefix);
-        
+
         outputDir = getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
         logger.info("Got argument value for outputDir: " + outputDir);
 
@@ -163,40 +216,7 @@ public class Arguments {
             logger.info("Got argument value for ioProfiling: " + ioProfiling);
         }
     }
-
-    public static Arguments parseArgs(String args) {
-        if (args == null) {
-            return new Arguments(new HashMap<>());
-        }
-
-        args = args.trim();
-        if (args.isEmpty()) {
-            return new Arguments(new HashMap<>());
-        }
-
-        Map<String, List<String>> map = new HashMap<>();
-        for (String argPair : args.split(",")) {
-            String[] strs = argPair.split("=");
-            if (strs.length != 2) {
-                throw new IllegalArgumentException("Arguments for the agent should be like: key1=value1,key2=value2");
-            }
-
-            String key = strs[0].trim();
-            if (key.isEmpty()) {
-                throw new IllegalArgumentException("Argument key should not be empty");
-            }
-
-            List<String> list = map.get(key);
-            if (list == null) {
-                list = new ArrayList<>();
-                map.put(key, list);
-            }
-            list.add(strs[1].trim());
-        }
-
-        return new Arguments(map);
-    }
-
+    
     public Map<String, List<String>> getRawArgValues() {
         return rawArgValues;
     }
@@ -227,10 +247,34 @@ public class Arguments {
         }
     }
 
+    public ConfigProvider getConfigProvider() {
+        if (configProviderConstructor == null) {
+            return new DummyConfigProvider();
+        } else {
+            try {
+                ConfigProvider configProvider = configProviderConstructor.newInstance();
+                if (configProvider instanceof YamlConfigProvider) {
+                    if (configFile == null || configFile.isEmpty()) {
+                        throw new RuntimeException("Argument configFile is empty, cannot use " + configProvider.getClass());
+                    }
+                    ((YamlConfigProvider)configProvider).setFilePath(configFile);
+                    return configProvider;
+                }
+                return configProvider;
+            } catch (Throwable e) {
+                throw new RuntimeException(String.format("Failed to create config provider instance %s", configProviderConstructor.getDeclaringClass()), e);
+            }
+        }
+    }
+
     public void setReporter(String className) {
         reporterConstructor = ReflectionUtils.getConstructor(className, Reporter.class);
     }
 
+    public void setConfigProvider(String className) {
+        configProviderConstructor = ReflectionUtils.getConstructor(className, ConfigProvider.class);
+    }
+    
     public long getMetricInterval() {
         return metricInterval;
     }
