@@ -174,6 +174,7 @@ public class YamlConfigProvider implements ConfigProvider {
                         logger.warn("Failed getting url: " + url + ", response code: " + statusCode);
                         return new byte[0];
                     }
+                    // TODO handle charset encoding
                     return IOUtils.toByteArray(httpResponse.getEntity().getContent());
                 }
             }
