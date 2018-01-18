@@ -50,6 +50,10 @@ The java agent supports following parameters, which could be used in Java comman
 
 - reporter: class name for the reporter, e.g. com.uber.profiling.reporters.ConsoleOutputReporter, or com.uber.profiling.reporters.KafkaOutputReporter, which are already implemented in the code. You could implement your own reporter and set the name here.
 
+- configProvider: class name for the config provider, e.g. com.uber.profiling.YamlConfigProvider, which are already implemented in the code. You could implement your own config provider and set the name here.
+
+- configFile: config file path to be used by YamlConfigProvider (if configProvider is set to com.uber.profiling.YamlConfigProvider). This could be a local file path or HTTP URL.
+
 - tag: plain text string which will be reported together with the metrics.
 
 - metricInterval: how frequent to collect and report the metrics, in milliseconds.
