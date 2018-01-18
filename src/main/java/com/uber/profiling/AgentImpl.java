@@ -30,6 +30,7 @@ import com.uber.profiling.transformers.MethodProfilerStaticProxy;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
+import com.uber.profiling.util.JsonUtils;
 import com.uber.profiling.util.SparkUtils;
 import com.uber.profiling.util.StacktraceMetricBuffer;
 
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -53,6 +55,29 @@ public class AgentImpl {
     private boolean started = false;
 
     public void run(Arguments arguments, Instrumentation instrumentation, Collection<AutoCloseable> objectsToCloseOnShutdown) {
+        try {
+            ConfigProvider configProvider = arguments.getConfigProvider();
+            if (configProvider != null) {
+                Map<String, Map<String, List<String>>> extraConfig = configProvider.getConfig();
+
+                Map<String, List<String>> rootConfig = extraConfig.get("");
+                if (rootConfig != null) {
+                    arguments.updateArguments(rootConfig);
+                    logger.info("Updated arguments based on config: " + JsonUtils.serialize(rootConfig));
+                }
+                
+                if (arguments.getTag() != null && !arguments.getTag().isEmpty()) {
+                    Map<String, List<String>> overrideConfig = extraConfig.get(arguments.getTag());
+                    if (overrideConfig != null) {
+                        arguments.updateArguments(overrideConfig);
+                        logger.info("Updated arguments based on config override: " + JsonUtils.serialize(overrideConfig));
+                    }
+                }
+            }
+        } catch (Throwable ex) {
+            logger.warn("Failed to update arguments with config provider", ex);
+        }
+        
         Reporter reporter = arguments.getReporter();
 
         String processUuid = UUID.randomUUID().toString();

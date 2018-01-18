@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.uber.profiling.util;
+package com.uber.profiling;
 
 import java.util.List;
 import java.util.Map;

@@ -22,6 +22,8 @@ import com.uber.profiling.util.ClassMethodArgument;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ArgumentsTest {
@@ -83,6 +85,15 @@ public class ArgumentsTest {
         Assert.assertTrue(reporter instanceof com.uber.profiling.ArgumentsTest.DummyReporter);
     }
 
+    @Test
+    public void setConfigProvider() {
+        Arguments arguments = Arguments.parseArgs("");
+
+        arguments.setConfigProvider("com.uber.profiling.ArgumentsTest$DummyConfigProvider");
+        ConfigProvider configProvider = arguments.getConfigProvider();
+        Assert.assertTrue(configProvider instanceof com.uber.profiling.ArgumentsTest.DummyConfigProvider);
+    }
+    
     public static class DummyReporter implements Reporter {
         @Override
         public void report(String profilerName, Map<String, Object> metrics) {
@@ -90,6 +101,13 @@ public class ArgumentsTest {
 
         @Override
         public void close() {
+        }
+    }
+
+    public static class DummyConfigProvider implements ConfigProvider {
+        @Override
+        public Map<String, Map<String, List<String>>> getConfig() {
+            return new HashMap<>();
         }
     }
 }

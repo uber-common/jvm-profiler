@@ -16,6 +16,7 @@
 
 package com.uber.profiling.util;
 
+import com.uber.profiling.ConfigProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,11 +36,17 @@ public class YamlConfigProvider implements ConfigProvider {
     private static final AgentLogger logger = AgentLogger.getLogger(YamlConfigProvider.class.getName());
     
     private static final String OVERRIDE_KEY = "override";
-    public static final int OK_CODE = 200;
     
     private String filePath;
 
+    public YamlConfigProvider() {
+    }
+    
     public YamlConfigProvider(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
 
