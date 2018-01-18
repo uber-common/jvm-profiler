@@ -24,7 +24,6 @@ import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassMethodArgument;
 import com.uber.profiling.util.DummyConfigProvider;
 import com.uber.profiling.util.ReflectionUtils;
-import com.uber.profiling.util.YamlConfigProvider;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;

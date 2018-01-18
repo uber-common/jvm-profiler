@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.uber.profiling.util;
+package com.uber.profiling;
 
-import com.uber.profiling.ConfigProvider;
+import com.uber.profiling.util.AgentLogger;
+import com.uber.profiling.util.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -72,6 +73,10 @@ public class YamlConfigProvider implements ConfigProvider {
             }
         } catch (Throwable e) {
             logger.warn("Failed to read file: " + filePath, e);
+            return new HashMap<>();
+        }
+        
+        if (bytes == null || bytes.length == 0) {
             return new HashMap<>();
         }
         

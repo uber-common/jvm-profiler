@@ -19,6 +19,7 @@ package com.uber.profiling.util;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.uber.profiling.YamlConfigProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
