@@ -239,18 +239,20 @@ public class Arguments {
         }
     }
     
-    public void processConfigProvider() {
+    public void runConfigProvider() {
         try {
             ConfigProvider configProvider = getConfigProvider();
             if (configProvider != null) {
                 Map<String, Map<String, List<String>>> extraConfig = configProvider.getConfig();
 
+                // Get root level config (use empty string as key in the config map)
                 Map<String, List<String>> rootConfig = extraConfig.get("");
                 if (rootConfig != null) {
                     updateArguments(rootConfig);
                     logger.info("Updated arguments based on config: " + JsonUtils.serialize(rootConfig));
                 }
 
+                // Get tag level config (use tag value to find config values in the config map)
                 if (getTag() != null && !getTag().isEmpty()) {
                     Map<String, List<String>> overrideConfig = extraConfig.get(getTag());
                     if (overrideConfig != null) {

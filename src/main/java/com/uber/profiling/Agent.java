@@ -33,7 +33,7 @@ public final class Agent {
         System.out.println("Java Agent " + AgentImpl.VERSION + " premain args: " + args);
 
         Arguments arguments = Arguments.parseArgs(args);
-        arguments.processConfigProvider();
+        arguments.runConfigProvider();
         agentImpl.run(arguments, instrumentation, null);
     }
 }
