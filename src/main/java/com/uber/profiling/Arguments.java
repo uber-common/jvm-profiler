@@ -23,6 +23,7 @@ import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassMethodArgument;
 import com.uber.profiling.util.DummyConfigProvider;
+import com.uber.profiling.util.JsonUtils;
 import com.uber.profiling.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -111,29 +112,56 @@ public class Arguments {
             list.add(strs[1].trim());
         }
 
-        return new Arguments(map);
+        Arguments arguments = new Arguments(map);
+
+        // Process config provider to update arguments
+        try {
+            ConfigProvider configProvider = arguments.getConfigProvider();
+            if (configProvider != null) {
+                Map<String, Map<String, List<String>>> extraConfig = configProvider.getConfig();
+
+                Map<String, List<String>> rootConfig = extraConfig.get("");
+                if (rootConfig != null) {
+                    arguments.updateArguments(rootConfig);
+                    logger.info("Updated arguments based on config: " + JsonUtils.serialize(rootConfig));
+                }
+
+                if (arguments.getTag() != null && !arguments.getTag().isEmpty()) {
+                    Map<String, List<String>> overrideConfig = extraConfig.get(arguments.getTag());
+                    if (overrideConfig != null) {
+                        arguments.updateArguments(overrideConfig);
+                        logger.info("Updated arguments based on config override: " + JsonUtils.serialize(overrideConfig));
+                    }
+                }
+            }
+        } catch (Throwable ex) {
+            logger.warn("Failed to update arguments with config provider", ex);
+        }
+        
+        return arguments;
     }
 
     public void updateArguments(Map<String, List<String>> parsedArgs) {
         rawArgValues.putAll(parsedArgs);
 
         String argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             reporterConstructor = ReflectionUtils.getConstructor(argValue, Reporter.class);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_PROVIDER);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             configProviderConstructor = ReflectionUtils.getConstructor(argValue, ConfigProvider.class);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_FILE);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             configFile = argValue;
+            logger.info("Got argument value for configFile: " + configFile);
         }
         
         argValue = getArgumentSingleValue(parsedArgs, ARG_METRIC_INTERVAL);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             metricInterval = Long.parseLong(argValue);
             logger.info("Got argument value for metricInterval: " + metricInterval);
         }
@@ -143,7 +171,7 @@ public class Arguments {
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_SAMPLE_INTERVAL);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             sampleInterval = Long.parseLong(argValue);
             logger.info("Got argument value for sampleInterval: " + sampleInterval);
         }
@@ -152,66 +180,84 @@ public class Arguments {
             throw new RuntimeException("Sample interval too short, must be 0 (disable sampling) or at least " + Arguments.MIN_INTERVAL_MILLIS);
         }
 
-        tag = getArgumentSingleValue(parsedArgs, ARG_TAG);
-        logger.info("Got argument value for tag: " + tag);
+        argValue = getArgumentSingleValue(parsedArgs, ARG_TAG);
+        if (needToUpdateArg(argValue)) {
+            tag = argValue;
+            logger.info("Got argument value for tag: " + tag);
+        }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             appIdRegex = argValue;
             logger.info("Got argument value for appIdRegex: " + appIdRegex);
         }
 
         List<String> argValues = getArgumentMultiValues(parsedArgs, ARG_DURATION_PROFILING);
-        for (String str : argValues) {
-            int index = str.lastIndexOf(".");
-            if (index <= 0 || index + 1 >= str.length()) {
-                throw new IllegalArgumentException("Invalid argument value: " + str);
+        if (!argValues.isEmpty()) {
+            durationProfiling.clear();
+            for (String str : argValues) {
+                int index = str.lastIndexOf(".");
+                if (index <= 0 || index + 1 >= str.length()) {
+                    throw new IllegalArgumentException("Invalid argument value: " + str);
+                }
+                String className = str.substring(0, index);
+                String methodName = str.substring(index + 1, str.length());
+                ClassAndMethod classAndMethod = new ClassAndMethod(className, methodName);
+                durationProfiling.add(classAndMethod);
+                logger.info("Got argument value for durationProfiling: " + classAndMethod);
             }
-            String className = str.substring(0, index);
-            String methodName = str.substring(index + 1, str.length());
-            ClassAndMethod classAndMethod = new ClassAndMethod(className, methodName);
-            durationProfiling.add(classAndMethod);
-            logger.info("Got argument value for durationProfiling: " + classAndMethod);
         }
 
         argValues = getArgumentMultiValues(parsedArgs, ARG_ARGUMENT_PROFILING);
-        for (String str : argValues) {
-            int index = str.lastIndexOf(".");
-            if (index <= 0 || index + 1 >= str.length()) {
-                throw new IllegalArgumentException("Invalid argument value: " + str);
-            }
-            String classMethodName = str.substring(0, index);
-            int argumentIndex = Integer.parseInt(str.substring(index + 1, str.length()));
+        if (!argValues.isEmpty()) {
+            argumentProfiling.clear();
+            for (String str : argValues) {
+                int index = str.lastIndexOf(".");
+                if (index <= 0 || index + 1 >= str.length()) {
+                    throw new IllegalArgumentException("Invalid argument value: " + str);
+                }
+                String classMethodName = str.substring(0, index);
+                int argumentIndex = Integer.parseInt(str.substring(index + 1, str.length()));
 
-            index = classMethodName.lastIndexOf(".");
-            if (index <= 0 || index + 1 >= classMethodName.length()) {
-                throw new IllegalArgumentException("Invalid argument value: " + str);
-            }
-            String className = classMethodName.substring(0, index);
-            String methodName = str.substring(index + 1, classMethodName.length());
+                index = classMethodName.lastIndexOf(".");
+                if (index <= 0 || index + 1 >= classMethodName.length()) {
+                    throw new IllegalArgumentException("Invalid argument value: " + str);
+                }
+                String className = classMethodName.substring(0, index);
+                String methodName = str.substring(index + 1, classMethodName.length());
 
-            ClassMethodArgument classMethodArgument = new ClassMethodArgument(className, methodName, argumentIndex);
-            argumentProfiling.add(classMethodArgument);
-            logger.info("Got argument value for argumentProfiling: " + classMethodArgument);
+                ClassMethodArgument classMethodArgument = new ClassMethodArgument(className, methodName, argumentIndex);
+                argumentProfiling.add(classMethodArgument);
+                logger.info("Got argument value for argumentProfiling: " + classMethodArgument);
+            }
         }
 
-        brokerList = getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
-        logger.info("Got argument value for brokerList: " + brokerList);
+        argValue = getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
+        if (needToUpdateArg(argValue)) {
+            brokerList = argValue;
+            logger.info("Got argument value for brokerList: " + brokerList);
+        }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             syncMode = Boolean.parseBoolean(argValue);
             logger.info("Got argument value for syncMode: " + syncMode);
         }
 
-        topicPrefix = getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
-        logger.info("Got argument value for topicPrefix: " + topicPrefix);
+        argValue = getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
+        if (needToUpdateArg(argValue)) {
+            topicPrefix = argValue;
+            logger.info("Got argument value for topicPrefix: " + topicPrefix);
+        }
 
-        outputDir = getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
-        logger.info("Got argument value for outputDir: " + outputDir);
+        argValue = getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
+        if (needToUpdateArg(argValue)) {
+            outputDir = argValue;
+            logger.info("Got argument value for outputDir: " + outputDir);
+        }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_IO_PROFILING);
-        if (argValue != null && !argValue.isEmpty()) {
+        if (needToUpdateArg(argValue)) {
             ioProfiling = Boolean.parseBoolean(argValue);
             logger.info("Got argument value for ioProfiling: " + ioProfiling);
         }
@@ -330,5 +376,9 @@ public class Arguments {
             return new ArrayList<>();
         }
         return list;
+    }
+    
+    private boolean needToUpdateArg(String argValue) {
+        return argValue != null && !argValue.isEmpty();
     }
 }

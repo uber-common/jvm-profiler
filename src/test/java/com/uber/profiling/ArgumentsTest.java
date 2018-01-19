@@ -22,6 +22,7 @@ import com.uber.profiling.util.ClassMethodArgument;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,60 @@ public class ArgumentsTest {
         ConfigProvider configProvider = arguments.getConfigProvider();
         Assert.assertTrue(configProvider instanceof com.uber.profiling.ArgumentsTest.DummyConfigProvider);
     }
+
+    @Test
+    public void withDummyConfigProvider() {
+        Arguments arguments = Arguments.parseArgs(
+                "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$DummyConfigProvider");
+        Assert.assertEquals("tag1", arguments.getTag());
+        Assert.assertEquals(1000L, arguments.getMetricInterval());
+        Assert.assertEquals(true, arguments.isIoProfiling());
+        Assert.assertArrayEquals(
+                new ClassAndMethod[]{new ClassAndMethod("a.bc", "foo"), new ClassAndMethod("ab.c.d", "test")}, 
+                arguments.getDurationProfiling().toArray(new ClassAndMethod[2]));
+    }
+
+    @Test
+    public void withSimpleConfigProvider() {
+        Arguments arguments = Arguments.parseArgs(
+                "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$SimpleConfigProvider");
+        Assert.assertEquals("tag1", arguments.getTag());
+        Assert.assertEquals(9000L, arguments.getMetricInterval());
+        Assert.assertEquals(false, arguments.isIoProfiling());
+        Assert.assertArrayEquals(
+                new ClassAndMethod[]{new ClassAndMethod("package.c900", "m900"), new ClassAndMethod("package.c901", "m901")},
+                arguments.getDurationProfiling().toArray(new ClassAndMethod[2]));
+    }
+
+    @Test
+    public void withOverrideConfigProvider() {
+        Arguments arguments = Arguments.parseArgs(
+                "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+        Assert.assertEquals("tag1", arguments.getTag());
+        Assert.assertEquals(9001L, arguments.getMetricInterval());
+        Assert.assertEquals(false, arguments.isIoProfiling());
+        Assert.assertArrayEquals(
+                new ClassAndMethod[]{new ClassAndMethod("package.c900", "m910"), new ClassAndMethod("package.c901", "m911")},
+                arguments.getDurationProfiling().toArray(new ClassAndMethod[2]));
+
+        arguments = Arguments.parseArgs(
+                "tag=tag2,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+        Assert.assertEquals("tag2", arguments.getTag());
+        Assert.assertEquals(9002L, arguments.getMetricInterval());
+        Assert.assertEquals(true, arguments.isIoProfiling());
+        Assert.assertArrayEquals(
+                new ClassAndMethod[]{new ClassAndMethod("package.c900", "m920"), new ClassAndMethod("package.c901", "m921")},
+                arguments.getDurationProfiling().toArray(new ClassAndMethod[2]));
+
+        arguments = Arguments.parseArgs(
+                "tag=tag3,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+        Assert.assertEquals("tag3", arguments.getTag());
+        Assert.assertEquals(9000L, arguments.getMetricInterval());
+        Assert.assertEquals(true, arguments.isIoProfiling());
+        Assert.assertArrayEquals(
+                new ClassAndMethod[]{new ClassAndMethod("package.c900", "m900"), new ClassAndMethod("package.c901", "m901")},
+                arguments.getDurationProfiling().toArray(new ClassAndMethod[2]));
+    }
     
     public static class DummyReporter implements Reporter {
         @Override
@@ -108,6 +163,52 @@ public class ArgumentsTest {
         @Override
         public Map<String, Map<String, List<String>>> getConfig() {
             return new HashMap<>();
+        }
+    }
+
+    public static class SimpleConfigProvider implements ConfigProvider {
+        @Override
+        public Map<String, Map<String, List<String>>> getConfig() {
+            Map<String, Map<String, List<String>>> configMap = new HashMap<>();
+
+            Map<String, List<String>> argMap = new HashMap<>();
+            argMap.put("metricInterval", Arrays.asList("9000"));
+            argMap.put("ioProfiling", Arrays.asList("false"));
+            argMap.put("durationProfiling", Arrays.asList("package.c900.m900", "package.c901.m901"));
+
+            configMap.put("", argMap);
+            
+            return configMap;
+        }
+    }
+
+    public static class OverrideConfigProvider implements ConfigProvider {
+        @Override
+        public Map<String, Map<String, List<String>>> getConfig() {
+            Map<String, Map<String, List<String>>> configMap = new HashMap<>();
+
+            Map<String, List<String>> argMap = new HashMap<>();
+            argMap.put("metricInterval", Arrays.asList("9000"));
+            argMap.put("ioProfiling", Arrays.asList("true"));
+            argMap.put("durationProfiling", Arrays.asList("package.c900.m900", "package.c901.m901"));
+
+            configMap.put("", argMap);
+
+            argMap = new HashMap<>();
+            argMap.put("metricInterval", Arrays.asList("9001"));
+            argMap.put("ioProfiling", Arrays.asList("false"));
+            argMap.put("durationProfiling", Arrays.asList("package.c900.m910", "package.c901.m911"));
+
+            configMap.put("tag1", argMap);
+
+            argMap = new HashMap<>();
+            argMap.put("metricInterval", Arrays.asList("9002"));
+            argMap.put("ioProfiling", Arrays.asList("true"));
+            argMap.put("durationProfiling", Arrays.asList("package.c900.m920", "package.c901.m921"));
+
+            configMap.put("tag2", argMap);
+
+            return configMap;
         }
     }
 }
