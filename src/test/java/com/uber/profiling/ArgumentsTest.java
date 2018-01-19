@@ -96,9 +96,12 @@ public class ArgumentsTest {
     }
 
     @Test
-    public void withDummyConfigProvider() {
+    public void processConfigProvider_DummyConfigProvider() {
         Arguments arguments = Arguments.parseArgs(
                 "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$DummyConfigProvider");
+
+        arguments.processConfigProvider();
+        
         Assert.assertEquals("tag1", arguments.getTag());
         Assert.assertEquals(1000L, arguments.getMetricInterval());
         Assert.assertEquals(true, arguments.isIoProfiling());
@@ -108,9 +111,12 @@ public class ArgumentsTest {
     }
 
     @Test
-    public void withSimpleConfigProvider() {
+    public void processConfigProvider_SimpleConfigProvider() {
         Arguments arguments = Arguments.parseArgs(
                 "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$SimpleConfigProvider");
+        
+        arguments.processConfigProvider();
+        
         Assert.assertEquals("tag1", arguments.getTag());
         Assert.assertEquals(9000L, arguments.getMetricInterval());
         Assert.assertEquals(false, arguments.isIoProfiling());
@@ -120,9 +126,12 @@ public class ArgumentsTest {
     }
 
     @Test
-    public void withOverrideConfigProvider() {
+    public void processConfigProvider_OverrideConfigProvider() {
         Arguments arguments = Arguments.parseArgs(
                 "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+        
+        arguments.processConfigProvider();
+        
         Assert.assertEquals("tag1", arguments.getTag());
         Assert.assertEquals(9001L, arguments.getMetricInterval());
         Assert.assertEquals(false, arguments.isIoProfiling());
@@ -132,6 +141,9 @@ public class ArgumentsTest {
 
         arguments = Arguments.parseArgs(
                 "tag=tag2,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+
+        arguments.processConfigProvider();
+        
         Assert.assertEquals("tag2", arguments.getTag());
         Assert.assertEquals(9002L, arguments.getMetricInterval());
         Assert.assertEquals(true, arguments.isIoProfiling());
@@ -141,6 +153,9 @@ public class ArgumentsTest {
 
         arguments = Arguments.parseArgs(
                 "tag=tag3,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$OverrideConfigProvider");
+
+        arguments.processConfigProvider();
+        
         Assert.assertEquals("tag3", arguments.getTag());
         Assert.assertEquals(9000L, arguments.getMetricInterval());
         Assert.assertEquals(true, arguments.isIoProfiling());

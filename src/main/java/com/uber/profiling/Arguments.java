@@ -112,33 +112,7 @@ public class Arguments {
             list.add(strs[1].trim());
         }
 
-        Arguments arguments = new Arguments(map);
-
-        // Process config provider to update arguments
-        try {
-            ConfigProvider configProvider = arguments.getConfigProvider();
-            if (configProvider != null) {
-                Map<String, Map<String, List<String>>> extraConfig = configProvider.getConfig();
-
-                Map<String, List<String>> rootConfig = extraConfig.get("");
-                if (rootConfig != null) {
-                    arguments.updateArguments(rootConfig);
-                    logger.info("Updated arguments based on config: " + JsonUtils.serialize(rootConfig));
-                }
-
-                if (arguments.getTag() != null && !arguments.getTag().isEmpty()) {
-                    Map<String, List<String>> overrideConfig = extraConfig.get(arguments.getTag());
-                    if (overrideConfig != null) {
-                        arguments.updateArguments(overrideConfig);
-                        logger.info("Updated arguments based on config override: " + JsonUtils.serialize(overrideConfig));
-                    }
-                }
-            }
-        } catch (Throwable ex) {
-            logger.warn("Failed to update arguments with config provider", ex);
-        }
-        
-        return arguments;
+        return new Arguments(map);
     }
 
     public void updateArguments(Map<String, List<String>> parsedArgs) {
@@ -262,6 +236,31 @@ public class Arguments {
         if (needToUpdateArg(argValue)) {
             ioProfiling = Boolean.parseBoolean(argValue);
             logger.info("Got argument value for ioProfiling: " + ioProfiling);
+        }
+    }
+    
+    public void processConfigProvider() {
+        try {
+            ConfigProvider configProvider = getConfigProvider();
+            if (configProvider != null) {
+                Map<String, Map<String, List<String>>> extraConfig = configProvider.getConfig();
+
+                Map<String, List<String>> rootConfig = extraConfig.get("");
+                if (rootConfig != null) {
+                    updateArguments(rootConfig);
+                    logger.info("Updated arguments based on config: " + JsonUtils.serialize(rootConfig));
+                }
+
+                if (getTag() != null && !getTag().isEmpty()) {
+                    Map<String, List<String>> overrideConfig = extraConfig.get(getTag());
+                    if (overrideConfig != null) {
+                        updateArguments(overrideConfig);
+                        logger.info("Updated arguments based on config override: " + JsonUtils.serialize(overrideConfig));
+                    }
+                }
+            }
+        } catch (Throwable ex) {
+            logger.warn("Failed to update arguments with config provider", ex);
         }
     }
     
