@@ -147,11 +147,13 @@ public class Arguments {
         String argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
         if (needToUpdateArg(argValue)) {
             reporterConstructor = ReflectionUtils.getConstructor(argValue, Reporter.class);
+            logger.info("Got argument value for reporter: " + argValue);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_PROVIDER);
         if (needToUpdateArg(argValue)) {
             configProviderConstructor = ReflectionUtils.getConstructor(argValue, ConfigProvider.class);
+            logger.info("Got argument value for configProvider: " + argValue);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_FILE);
