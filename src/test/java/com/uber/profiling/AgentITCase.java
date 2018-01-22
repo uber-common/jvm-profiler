@@ -43,7 +43,7 @@ public class AgentITCase {
                 javaBin,
                 "-cp",
                 agentJar,
-                "-javaagent:" + agentJar + "=reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,ioProfiling=true",
+                "-javaagent:" + agentJar + "=configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,ioProfiling=true",
                 "com.uber.profiling.examples.HelloWorldApplication",
                 "2000"
         );
