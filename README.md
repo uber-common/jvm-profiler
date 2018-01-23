@@ -2,7 +2,10 @@
 
 Uber JVM Profiler provides a Java Agent to collect various metrics and stacktraces for Hadoop/Spark JVM processes 
 in a distributed way, for example, CPU/Memory/IO metrics. It also provides advanced profiling capabilities to trace
-arbitrary Java methods and arguments on the user code without user code change requirement. 
+arbitrary Java methods and arguments on the user code without user code change requirement. This advanced feature 
+could be used to trace HDFS name node call latency for each Spark application and identify bottleneck of name node.
+It could also trace the HDFS file paths each Spark application reads or writes and identify hot files for further 
+optimization.
 
 It is initially created to profile Spark applications which usually have dozens of processes for a single application. 
 However Uber JVM Profiler is a generic Java Agent and could be used for any JVM process as well.
