@@ -29,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
@@ -94,11 +95,7 @@ public class YamlConfigProviderTest {
     }
     
     @Test
-    public void getConfigFromHttp() throws IOException {
-        ServerSocket socket = new ServerSocket(0);
-        int port = socket.getLocalPort();
-        socket.close();
-
+    public void getConfigFromFile() throws IOException {
         String content = "key1: value1\n" +
                 "key2:\n" +
                 "- value2a\n" +
@@ -111,25 +108,11 @@ public class YamlConfigProviderTest {
                 "    - value22b\n" +
                 "";
         
-        HttpHandler handler = new HttpHandler() {
-            public void handle(HttpExchange exchange) throws IOException {
-                byte[] response = content.getBytes();
-                exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK,
-                        response.length);
-                exchange.getResponseBody().write(response);
-                exchange.close();
-            }
-        };
-
+        Path path = Files.createTempFile("jvm-profiler_", ".yaml");
+        Files.write(path, content.getBytes());
+        path.toFile().deleteOnExit();
         
-        InetSocketAddress address = new InetSocketAddress(port);
-        HttpServer httpServer = HttpServer.create(address, 0);
-        httpServer.createContext("/test", handler);
-        httpServer.start();
-
-        String url = String.format("http://localhost:%s/test", port);
-
-        YamlConfigProvider provider = new YamlConfigProvider(url);
+        YamlConfigProvider provider = new YamlConfigProvider(path.toString());
         Map<String, Map<String, List<String>>> config = provider.getConfig();
         Assert.assertEquals(2, config.size());
 
