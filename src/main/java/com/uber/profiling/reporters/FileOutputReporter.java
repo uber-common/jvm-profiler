@@ -17,6 +17,7 @@
 package com.uber.profiling.reporters;
 
 import com.uber.profiling.Reporter;
+import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
 
 import java.io.FileWriter;
@@ -29,8 +30,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileOutputReporter implements Reporter {
+    private static final AgentLogger logger = AgentLogger.getLogger(FileOutputReporter.class.getName());
+    
     private String directory;
     private ConcurrentHashMap<String, FileWriter> fileWriters = new ConcurrentHashMap<>();
+    private volatile boolean closed = false;
     
     public FileOutputReporter() {
     }
@@ -53,7 +57,12 @@ public class FileOutputReporter implements Reporter {
     }
 
     @Override
-    public void report(String profilerName, Map<String, Object> metrics) {
+    public synchronized void report(String profilerName, Map<String, Object> metrics) {
+        if (closed) {
+            logger.info("Report already closed, do not report metrics");
+            return;
+        }
+        
         FileWriter writer = ensureFile(profilerName);
         try {
             writer.write(JsonUtils.serialize(metrics));
@@ -65,7 +74,9 @@ public class FileOutputReporter implements Reporter {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        closed = true;
+        
         List<FileWriter> copy = new ArrayList<>(fileWriters.values());
         for (FileWriter entry : copy) {
             try {
