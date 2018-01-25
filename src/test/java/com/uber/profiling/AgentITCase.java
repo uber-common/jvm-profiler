@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AgentITCase {
@@ -107,6 +109,35 @@ public class AgentITCase {
                 "-cp",
                 agentJar,
                 "-javaagent:" + agentJar + "=noop=true,configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,ioProfiling=true",
+                "com.uber.profiling.examples.HelloWorldApplication",
+                "2000"
+        );
+
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+        process.waitFor();
+
+        File[] files = new File(outputDir).listFiles();
+        Assert.assertEquals(0, files.length);
+    }
+
+    @Test
+    public void runAgent_noopConfigProvider() throws InterruptedException, IOException {
+        String javaHome = System.getProperty("java.home");
+        String javaBin = Paths.get(javaHome, "bin/java").toAbsolutePath().toString();
+
+        String agentJar = getAgentJarPath();
+
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
+        System.out.println("outputDir: " + outputDir);
+
+        ProcessBuilder pb = new ProcessBuilder(
+                javaBin,
+                "-cp",
+                agentJar,
+                "-javaagent:" + agentJar + "=configProvider=com.uber.profiling.util.NoopConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,ioProfiling=true",
                 "com.uber.profiling.examples.HelloWorldApplication",
                 "2000"
         );
