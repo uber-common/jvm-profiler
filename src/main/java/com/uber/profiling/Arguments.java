@@ -37,6 +37,7 @@ public class Arguments {
     public final static long DEFAULT_METRIC_INTERVAL = 60000;
     public final static long DEFAULT_SAMPLE_INTERVAL = 100;
 
+    public final static String ARG_NOOP = "noop";
     public final static String ARG_REPORTER = "reporter";
     public final static String ARG_CONFIG_PROVIDER = "configProvider";
     public final static String ARG_CONFIG_FILE = "configFile";
@@ -61,6 +62,8 @@ public class Arguments {
 
     private Map<String, List<String>> rawArgValues = new HashMap<>();
 
+    private boolean noop = false;
+    
     private Constructor<Reporter> reporterConstructor;
     private Constructor<ConfigProvider> configProviderConstructor;
     private String configFile;
@@ -118,7 +121,13 @@ public class Arguments {
     public void updateArguments(Map<String, List<String>> parsedArgs) {
         rawArgValues.putAll(parsedArgs);
 
-        String argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
+        String argValue = getArgumentSingleValue(parsedArgs, ARG_NOOP);
+        if (needToUpdateArg(argValue)) {
+            noop = Boolean.parseBoolean(argValue);
+            logger.info("Got argument value for noop: " + noop);
+        }
+        
+        argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
         if (needToUpdateArg(argValue)) {
             reporterConstructor = ReflectionUtils.getConstructor(argValue, Reporter.class);
             logger.info("Got argument value for reporter: " + argValue);
@@ -314,6 +323,10 @@ public class Arguments {
                 throw new RuntimeException(String.format("Failed to create config provider instance %s", configProviderConstructor.getDeclaringClass()), e);
             }
         }
+    }
+
+    public boolean isNoop() {
+        return noop;
     }
 
     public void setReporter(String className) {

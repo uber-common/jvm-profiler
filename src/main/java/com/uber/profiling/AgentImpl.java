@@ -55,6 +55,11 @@ public class AgentImpl {
     private boolean started = false;
 
     public void run(Arguments arguments, Instrumentation instrumentation, Collection<AutoCloseable> objectsToCloseOnShutdown) {
+        if (arguments.isNoop()) {
+            logger.info("Agent noop is true, do not run anything");
+            return;
+        }
+        
         Reporter reporter = arguments.getReporter();
 
         String processUuid = UUID.randomUUID().toString();
