@@ -91,6 +91,35 @@ public class AgentITCase {
         Assert.assertTrue(jsonProcessInfo.contains("jvmClassPath"));
         Assert.assertTrue(jsonProcessInfo.contains(agentJar));
     }
+
+    @Test
+    public void runAgent_noop() throws InterruptedException, IOException {
+        String javaHome = System.getProperty("java.home");
+        String javaBin = Paths.get(javaHome, "bin/java").toAbsolutePath().toString();
+
+        String agentJar = getAgentJarPath();
+
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
+        System.out.println("outputDir: " + outputDir);
+
+        ProcessBuilder pb = new ProcessBuilder(
+                javaBin,
+                "-cp",
+                agentJar,
+                "-javaagent:" + agentJar + "=noop=true,configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,ioProfiling=true",
+                "com.uber.profiling.examples.HelloWorldApplication",
+                "2000"
+        );
+
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+        process.waitFor();
+
+        File[] files = new File(outputDir).listFiles();
+        Assert.assertEquals(0, files.length);
+    }
     
     private String getAgentJarPath() throws IOException {
         // Find jar file with largest size under target directory, which should be the packaged agent jar file
