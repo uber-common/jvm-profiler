@@ -32,6 +32,7 @@ public class ArgumentsTest {
     public void allArguments() {
         Arguments arguments = Arguments.parseArgs("reporter=com.uber.profiling.ArgumentsTest$DummyReporter,durationProfiling=a.bc.foo,metricInterval=123,appIdRegex=app123,argumentProfiling=package1.class1.method1.1");
         Assert.assertEquals(5, arguments.getRawArgValues().size());
+        Assert.assertFalse(arguments.isNoop());
         Assert.assertEquals(DummyReporter.class, arguments.getReporter().getClass());
         Assert.assertEquals(1, arguments.getDurationProfiling().size());
         Assert.assertEquals(new ClassAndMethod("a.bc", "foo"), arguments.getDurationProfiling().get(0));
@@ -46,6 +47,7 @@ public class ArgumentsTest {
     public void emptyArguments() {
         Arguments arguments = Arguments.parseArgs("");
         Assert.assertEquals(0, arguments.getRawArgValues().size());
+        Assert.assertFalse(arguments.isNoop());
         Assert.assertEquals(ConsoleOutputReporter.class, arguments.getReporter().getClass());
         Assert.assertEquals(0, arguments.getDurationProfiling().size());
         Assert.assertEquals(60000, arguments.getMetricInterval());
@@ -57,6 +59,14 @@ public class ArgumentsTest {
         Arguments.parseArgs("reporter=,durationProfiling=,metricInterval=,appIdRegex=,");
     }
 
+    @Test
+    public void noop() {
+        Arguments arguments = Arguments.parseArgs("durationProfiling=a.bc.foo,noop=true,durationProfiling=ab.c.d.test");
+        Assert.assertEquals(2, arguments.getRawArgValues().size());
+        Assert.assertTrue(arguments.isNoop());
+        Assert.assertEquals(2, arguments.getDurationProfiling().size());
+    }
+    
     @Test
     public void durationProfiling() {
         Arguments arguments = Arguments.parseArgs("durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test");
