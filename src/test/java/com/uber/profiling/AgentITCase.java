@@ -151,6 +151,62 @@ public class AgentITCase {
         File[] files = new File(outputDir).listFiles();
         Assert.assertEquals(0, files.length);
     }
+
+    @Test
+    public void runAgent_argumentProfilingZero() throws InterruptedException, IOException {
+        String javaHome = System.getProperty("java.home");
+        String javaBin = Paths.get(javaHome, "bin/java").toAbsolutePath().toString();
+
+        String agentJar = getAgentJarPath();
+
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
+        System.out.println("outputDir: " + outputDir);
+
+        ProcessBuilder pb = new ProcessBuilder(
+                javaBin,
+                "-cp",
+                agentJar,
+                "-javaagent:" + agentJar + "=configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.0",
+                "com.uber.profiling.examples.HelloWorldApplication",
+                "2000"
+        );
+
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+        process.waitFor();
+
+        File[] files = new File(outputDir).listFiles();
+        Assert.assertEquals(4, files.length);
+
+        List<String> fileNames = Arrays.asList(files).stream().map(t->t.getName()).sorted().collect(Collectors.toList());
+
+        Assert.assertEquals("CpuAndMemory.json", fileNames.get(0));
+        String jsonCpuAndMemory = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(0))));
+        System.out.println("-----CpuAndMemory-----");
+        System.out.println(jsonCpuAndMemory);
+        Assert.assertTrue(jsonCpuAndMemory.contains("bufferPool"));
+        
+        Assert.assertEquals("MethodArgument.json", fileNames.get(1));
+        String jsonMethodArgument = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(1))));
+        System.out.println("-----MethodArgument-----");
+        System.out.println(jsonMethodArgument);
+        Assert.assertTrue(jsonMethodArgument.contains("arg.0"));
+
+        Assert.assertEquals("MethodDuration.json", fileNames.get(2));
+        String jsonMethodDuration = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(2))));
+        System.out.println("-----MethodDuration-----");
+        System.out.println(jsonMethodDuration);
+        Assert.assertTrue(jsonMethodDuration.contains("duration.sum"));
+
+        Assert.assertEquals("ProcessInfo.json", fileNames.get(3));
+        String jsonProcessInfo = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(3))));
+        System.out.println("-----ProcessInfo-----");
+        System.out.println(jsonProcessInfo);
+        Assert.assertTrue(jsonProcessInfo.contains("jvmClassPath"));
+        Assert.assertTrue(jsonProcessInfo.contains(agentJar));
+    }
     
     private String getAgentJarPath() throws IOException {
         // Find jar file with largest size under target directory, which should be the packaged agent jar file

@@ -30,8 +30,8 @@ public class ClassMethodArgument {
             throw new NullPointerException("methodName");
         }
 
-        if (argumentIndex <= 0) {
-            throw new IllegalArgumentException("argumentIndex (must equal or greater than 1, which means the first argument)");
+        if (argumentIndex < 0) {
+            throw new IllegalArgumentException("argumentIndex (must equal or greater than 0: 0 means not collecting argument value, 1 means collecting first argument value)");
         }
 
         this.className = className;
