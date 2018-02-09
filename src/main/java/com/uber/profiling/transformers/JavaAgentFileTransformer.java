@@ -126,11 +126,19 @@ public class JavaAgentFileTransformer implements ClassFileTransformer {
             }
 
             for (Integer argument : argumentsForProfile) {
-                sb.append(String.format("try{com.uber.profiling.transformers.MethodProfilerStaticProxy.collectMethodArgument(\"%s\", \"%s\", %s, String.valueOf($%s));}catch(Throwable ex){ex.printStackTrace();}",
-                        normalizedClassName,
-                        method.getName(),
-                        argument,
-                        argument));
+                if (argument >= 1) {
+                    sb.append(String.format("try{com.uber.profiling.transformers.MethodProfilerStaticProxy.collectMethodArgument(\"%s\", \"%s\", %s, String.valueOf($%s));}catch(Throwable ex){ex.printStackTrace();}",
+                            normalizedClassName,
+                            method.getName(),
+                            argument,
+                            argument));
+                } else {
+                    sb.append(String.format("try{com.uber.profiling.transformers.MethodProfilerStaticProxy.collectMethodArgument(\"%s\", \"%s\", %s, \"\");}catch(Throwable ex){ex.printStackTrace();}",
+                            normalizedClassName,
+                            method.getName(),
+                            argument,
+                            argument));
+                }
             }
 
             sb.append("}");

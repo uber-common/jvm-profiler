@@ -21,7 +21,7 @@ processes/machines. It is also a generic Java Agent and could be used for any JV
 
 Following command will start the example application with the profiler agent attached, which will report metrics to the console output:
 ```
-java -javaagent:target/jvm-profiler-0.0.3.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-0.0.3.jar com.uber.profiling.examples.HelloWorldApplication
+java -javaagent:target/jvm-profiler-0.0.4.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-0.0.4.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 
 ## Send Metrics to Kafka
@@ -29,7 +29,7 @@ java -javaagent:target/jvm-profiler-0.0.3.jar=reporter=com.uber.profiling.report
 Uber JVM Profiler supports sending metrics to Kafka. For example,
 
 ```
-java -javaagent:target/jvm-profiler-0.0.3.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-0.0.3.jar com.uber.profiling.examples.HelloWorldApplication
+java -javaagent:target/jvm-profiler-0.0.4.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-0.0.4.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 It will send metrics to Kafka topic profiler_CpuAndMemory. See bottom of this document for an example of the metrics.
 
