@@ -44,6 +44,7 @@ public class Arguments {
     public final static String ARG_METRIC_INTERVAL = "metricInterval";
     public final static String ARG_SAMPLE_INTERVAL = "sampleInterval";
     public final static String ARG_TAG = "tag";
+    public final static String ARG_CLUSTER = "cluster";
     public final static String ARG_APP_ID_REGEX = "appIdRegex";
     public final static String ARG_DURATION_PROFILING = "durationProfiling";
     public final static String ARG_ARGUMENT_PROFILING = "argumentProfiling";
@@ -72,6 +73,7 @@ public class Arguments {
     private long metricInterval = DEFAULT_METRIC_INTERVAL;
     private long sampleInterval = 0L;
     private String tag;
+    private String cluster;
     private String brokerList;
     private boolean syncMode;
     private String topicPrefix;
@@ -169,6 +171,12 @@ public class Arguments {
         if (needToUpdateArg(argValue)) {
             tag = argValue;
             logger.info("Got argument value for tag: " + tag);
+        }
+
+        argValue = getArgumentSingleValue(parsedArgs, ARG_CLUSTER);
+        if (needToUpdateArg(argValue)) {
+            cluster = argValue;
+            logger.info("Got argument value for cluster: " + tag);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
@@ -349,6 +357,10 @@ public class Arguments {
         return tag;
     }
 
+    public String getCluster() {
+        return cluster;
+    }
+    
     public String getAppIdRegex() {
         return appIdRegex;
     }

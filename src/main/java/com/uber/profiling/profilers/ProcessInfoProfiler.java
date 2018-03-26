@@ -72,6 +72,10 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
             map.put("tag", getTag());
         }
 
+        if (getCluster() != null) {
+            map.put("cluster", getCluster());
+        }
+        
         // TODO support non spark application
         // TODO also possible to use SparkContext to get spark jar/class info
         

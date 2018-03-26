@@ -24,6 +24,7 @@ import java.util.UUID;
 
 public class ProcessInfoBase {
     private String tag = null;
+    private String cluster = null;
     private String hostName = null;
     private String processName = null;
     private String processUuid = UUID.randomUUID().toString();
@@ -44,6 +45,14 @@ public class ProcessInfoBase {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
     }
 
     public String getHostName() {

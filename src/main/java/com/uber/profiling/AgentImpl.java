@@ -46,7 +46,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AgentImpl {
-    public static final String VERSION = "0.0.4";
+    public static final String VERSION = "0.0.5";
     
     private static final AgentLogger logger = AgentLogger.getLogger(AgentImpl.class.getName());
 
@@ -124,12 +124,14 @@ public class AgentImpl {
 
     private List<Profiler> createProfilers(Reporter reporter, Arguments arguments, String processUuid, String appId) {
         String tag = arguments.getTag();
+        String cluster = arguments.getCluster();
         long metricInterval = arguments.getMetricInterval();
 
         List<Profiler> profilers = new ArrayList<>();
 
         CpuAndMemoryProfiler cpuAndMemoryProfiler = new CpuAndMemoryProfiler(reporter);
         cpuAndMemoryProfiler.setTag(tag);
+        cpuAndMemoryProfiler.setCluster(cluster);
         cpuAndMemoryProfiler.setIntervalMillis(metricInterval);
         cpuAndMemoryProfiler.setProcessUuid(processUuid);
         cpuAndMemoryProfiler.setAppId(appId);
@@ -138,6 +140,7 @@ public class AgentImpl {
 
         ProcessInfoProfiler processInfoProfiler = new ProcessInfoProfiler(reporter);
         processInfoProfiler.setTag(tag);
+        processInfoProfiler.setCluster(cluster);
         processInfoProfiler.setProcessUuid(processUuid);
         processInfoProfiler.setAppId(appId);
 
@@ -148,6 +151,7 @@ public class AgentImpl {
 
             MethodDurationProfiler methodDurationProfiler = new MethodDurationProfiler(classAndMethodMetricBuffer, reporter);
             methodDurationProfiler.setTag(tag);
+            methodDurationProfiler.setCluster(cluster);
             methodDurationProfiler.setIntervalMillis(metricInterval);
             methodDurationProfiler.setProcessUuid(processUuid);
             methodDurationProfiler.setAppId(appId);
@@ -163,6 +167,7 @@ public class AgentImpl {
 
             MethodArgumentProfiler methodArgumentProfiler = new MethodArgumentProfiler(classAndMethodArgumentBuffer, reporter);
             methodArgumentProfiler.setTag(tag);
+            methodArgumentProfiler.setCluster(cluster);
             methodArgumentProfiler.setIntervalMillis(metricInterval);
             methodArgumentProfiler.setProcessUuid(processUuid);
             methodArgumentProfiler.setAppId(appId);
@@ -181,6 +186,7 @@ public class AgentImpl {
                     
             StacktraceReporterProfiler stacktraceReporterProfiler = new StacktraceReporterProfiler(stacktraceMetricBuffer, reporter);
             stacktraceReporterProfiler.setTag(tag);
+            stacktraceReporterProfiler.setCluster(cluster);
             stacktraceReporterProfiler.setIntervalMillis(metricInterval);
             stacktraceReporterProfiler.setProcessUuid(processUuid);
             stacktraceReporterProfiler.setAppId(appId);
@@ -192,6 +198,7 @@ public class AgentImpl {
         if (arguments.isIoProfiling()) {
             IOProfiler ioProfiler = new IOProfiler(reporter);
             ioProfiler.setTag(tag);
+            ioProfiler.setCluster(cluster);
             ioProfiler.setIntervalMillis(metricInterval);
             ioProfiler.setProcessUuid(processUuid);
             ioProfiler.setAppId(appId);
