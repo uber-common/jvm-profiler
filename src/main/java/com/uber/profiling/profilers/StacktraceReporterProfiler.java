@@ -90,6 +90,10 @@ public class StacktraceReporterProfiler extends ProcessInfoBase implements Profi
                 map.put("tag", getTag());
             }
 
+            if (getCluster() != null) {
+                map.put("cluster", getCluster());
+            }
+            
             if (getRole() != null) {
                 map.put("role", getRole());
             }

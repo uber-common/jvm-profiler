@@ -52,6 +52,8 @@ public class ArgumentsTest {
         Assert.assertEquals(0, arguments.getDurationProfiling().size());
         Assert.assertEquals(60000, arguments.getMetricInterval());
         Assert.assertEquals(0, arguments.getArgumentProfiling().size());
+        Assert.assertNull(arguments.getTag());
+        Assert.assertNull(arguments.getCluster());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -108,11 +110,12 @@ public class ArgumentsTest {
     @Test
     public void processConfigProvider_DummyConfigProvider() {
         Arguments arguments = Arguments.parseArgs(
-                "tag=tag1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$DummyConfigProvider");
+                "tag=tag1,cluster=cluster1,metricInterval=1000,ioProfiling=true,durationProfiling=a.bc.foo,durationProfiling=ab.c.d.test,configProvider=com.uber.profiling.ArgumentsTest$DummyConfigProvider");
 
         arguments.runConfigProvider();
         
         Assert.assertEquals("tag1", arguments.getTag());
+        Assert.assertEquals("cluster1", arguments.getCluster());
         Assert.assertEquals(1000L, arguments.getMetricInterval());
         Assert.assertEquals(true, arguments.isIoProfiling());
         Assert.assertArrayEquals(

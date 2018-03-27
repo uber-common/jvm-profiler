@@ -83,6 +83,10 @@ public class MethodDurationProfiler extends ProcessInfoBase implements Profiler 
                 commonMap.put("tag", getTag());
             }
 
+            if (getCluster() != null) {
+                commonMap.put("cluster", getCluster());
+            }
+            
             if (getRole() != null) {
                 commonMap.put("role", getRole());
             }

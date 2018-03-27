@@ -184,6 +184,10 @@ public class CpuAndMemoryProfiler extends ProcessInfoBase implements Profiler {
             map.put("tag", getTag());
         }
 
+        if (getCluster() != null) {
+            map.put("cluster", getCluster());
+        }
+
         if (getRole() != null) {
             map.put("role", getRole());
         }
