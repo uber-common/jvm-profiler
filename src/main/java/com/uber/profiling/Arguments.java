@@ -176,7 +176,7 @@ public class Arguments {
         argValue = getArgumentSingleValue(parsedArgs, ARG_CLUSTER);
         if (needToUpdateArg(argValue)) {
             cluster = argValue;
-            logger.info("Got argument value for cluster: " + tag);
+            logger.info("Got argument value for cluster: " + cluster);
         }
 
         argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
