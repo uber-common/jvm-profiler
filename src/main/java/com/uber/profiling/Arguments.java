@@ -45,6 +45,7 @@ public class Arguments {
     public final static String ARG_SAMPLE_INTERVAL = "sampleInterval";
     public final static String ARG_TAG = "tag";
     public final static String ARG_CLUSTER = "cluster";
+    public final static String ARG_APP_ID_VARIABLE = "appIdVariable";
     public final static String ARG_APP_ID_REGEX = "appIdRegex";
     public final static String ARG_DURATION_PROFILING = "durationProfiling";
     public final static String ARG_ARGUMENT_PROFILING = "argumentProfiling";
@@ -68,7 +69,8 @@ public class Arguments {
     private Constructor<Reporter> reporterConstructor;
     private Constructor<ConfigProvider> configProviderConstructor;
     private String configFile;
-    
+
+    private String appIdVariable;
     private String appIdRegex = DEFAULT_APP_ID_REGEX;
     private long metricInterval = DEFAULT_METRIC_INTERVAL;
     private long sampleInterval = 0L;
@@ -179,6 +181,12 @@ public class Arguments {
             logger.info("Got argument value for cluster: " + cluster);
         }
 
+        argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_VARIABLE);
+        if (needToUpdateArg(argValue)) {
+            appIdVariable = argValue;
+            logger.info("Got argument value for appIdVariable: " + appIdVariable);
+        }
+        
         argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
         if (needToUpdateArg(argValue)) {
             appIdRegex = argValue;
@@ -360,7 +368,15 @@ public class Arguments {
     public String getCluster() {
         return cluster;
     }
-    
+
+    public String getAppIdVariable() {
+        return appIdVariable;
+    }
+
+    public void setAppIdVariable(String appIdVariable) {
+        this.appIdVariable = appIdVariable;
+    }
+
     public String getAppIdRegex() {
         return appIdRegex;
     }

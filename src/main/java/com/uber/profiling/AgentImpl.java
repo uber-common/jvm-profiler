@@ -46,7 +46,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AgentImpl {
-    public static final String VERSION = "0.0.5";
+    public static final String VERSION = "0.0.6";
     
     private static final AgentLogger logger = AgentLogger.getLogger(AgentImpl.class.getName());
 
@@ -64,7 +64,16 @@ public class AgentImpl {
 
         String processUuid = UUID.randomUUID().toString();
 
-        String appId = SparkUtils.probeAppId(arguments.getAppIdRegex());
+        String appId = null;
+        
+        String appIdVariable = arguments.getAppIdVariable();
+        if (appIdVariable != null && !appIdVariable.isEmpty()) {
+            appId = System.getenv(appIdVariable);
+        }
+        
+        if (appId == null || appId.isEmpty()) {
+            appId = SparkUtils.probeAppId(arguments.getAppIdRegex());
+        }
 
         if (!arguments.getDurationProfiling().isEmpty()
                 || !arguments.getArgumentProfiling().isEmpty()) {

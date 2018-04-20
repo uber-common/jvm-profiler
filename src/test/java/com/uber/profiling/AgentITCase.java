@@ -207,6 +207,51 @@ public class AgentITCase {
         Assert.assertTrue(jsonProcessInfo.contains("jvmClassPath"));
         Assert.assertTrue(jsonProcessInfo.contains(agentJar));
     }
+
+    @Test
+    public void runAgent_appIdVariable() throws InterruptedException, IOException {
+        String javaHome = System.getProperty("java.home");
+        String javaBin = Paths.get(javaHome, "bin/java").toAbsolutePath().toString();
+
+        String agentJar = getAgentJarPath();
+
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
+        System.out.println("outputDir: " + outputDir);
+
+        ProcessBuilder pb = new ProcessBuilder(
+                javaBin,
+                "-cp",
+                agentJar,
+                "-javaagent:" + agentJar + "=configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,appIdVariable=APP_ID",
+                "com.uber.profiling.examples.HelloWorldApplication",
+                "2000"
+        );
+
+        pb.environment().put("APP_ID", "TEST_APP_ID_123_ABC");
+        
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+        process.waitFor();
+
+        File[] files = new File(outputDir).listFiles();
+        Assert.assertEquals(2, files.length);
+
+        List<String> fileNames = Arrays.asList(files).stream().map(t->t.getName()).sorted().collect(Collectors.toList());
+
+        Assert.assertEquals("CpuAndMemory.json", fileNames.get(0));
+        String jsonCpuAndMemory = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(0))));
+        System.out.println("-----CpuAndMemory-----");
+        System.out.println(jsonCpuAndMemory);
+        Assert.assertTrue(jsonCpuAndMemory.contains("TEST_APP_ID_123_ABC"));
+
+        Assert.assertEquals("ProcessInfo.json", fileNames.get(1));
+        String jsonProcessInfo = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(1))));
+        System.out.println("-----ProcessInfo-----");
+        System.out.println(jsonProcessInfo);
+        Assert.assertTrue(jsonProcessInfo.contains("TEST_APP_ID_123_ABC"));
+    }
     
     private String getAgentJarPath() throws IOException {
         // Find jar file with largest size under target directory, which should be the packaged agent jar file
