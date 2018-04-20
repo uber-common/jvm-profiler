@@ -30,13 +30,14 @@ import java.util.Map;
 public class ArgumentsTest {
     @Test
     public void allArguments() {
-        Arguments arguments = Arguments.parseArgs("reporter=com.uber.profiling.ArgumentsTest$DummyReporter,durationProfiling=a.bc.foo,metricInterval=123,appIdRegex=app123,argumentProfiling=package1.class1.method1.1");
-        Assert.assertEquals(5, arguments.getRawArgValues().size());
+        Arguments arguments = Arguments.parseArgs("reporter=com.uber.profiling.ArgumentsTest$DummyReporter,durationProfiling=a.bc.foo,metricInterval=123,appIdVariable=APP_ID1,appIdRegex=app123,argumentProfiling=package1.class1.method1.1");
+        Assert.assertEquals(6, arguments.getRawArgValues().size());
         Assert.assertFalse(arguments.isNoop());
         Assert.assertEquals(DummyReporter.class, arguments.getReporter().getClass());
         Assert.assertEquals(1, arguments.getDurationProfiling().size());
         Assert.assertEquals(new ClassAndMethod("a.bc", "foo"), arguments.getDurationProfiling().get(0));
         Assert.assertEquals(123, arguments.getMetricInterval());
+        Assert.assertEquals("APP_ID1", arguments.getAppIdVariable());
         Assert.assertEquals("app123", arguments.getAppIdRegex());
 
         Assert.assertEquals(1, arguments.getArgumentProfiling().size());
@@ -54,6 +55,7 @@ public class ArgumentsTest {
         Assert.assertEquals(0, arguments.getArgumentProfiling().size());
         Assert.assertNull(arguments.getTag());
         Assert.assertNull(arguments.getCluster());
+        Assert.assertNull(arguments.getAppIdVariable());
     }
 
     @Test(expected = IllegalArgumentException.class)
