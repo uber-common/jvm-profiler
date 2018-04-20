@@ -372,7 +372,11 @@ public class Arguments {
     public String getAppIdVariable() {
         return appIdVariable;
     }
-    
+
+    public void setAppIdVariable(String appIdVariable) {
+        this.appIdVariable = appIdVariable;
+    }
+
     public String getAppIdRegex() {
         return appIdRegex;
     }
