@@ -20,6 +20,7 @@ import com.uber.profiling.AgentImpl;
 import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
+import com.uber.profiling.util.ProcFileUtils;
 import com.uber.profiling.util.ProcessUtils;
 import com.uber.profiling.util.SparkAppCmdInfo;
 import com.uber.profiling.util.SparkUtils;
@@ -37,6 +38,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
     private String jvmInputArguments = "";
     private String jvmClassPath = "";
     private Long jvmXmxBytes = null;
+    private String cmdline = "";
 
     private Reporter reporter;
 
@@ -95,9 +97,10 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
             map.put("xmxBytes", jvmXmxBytes);
         }
         
-        if (jvmInputArguments.length() + jvmClassPath.length() <= Constants.MAX_STRING_LENGTH) {
+        if (jvmInputArguments.length() + jvmClassPath.length() + cmdline.length() <= Constants.MAX_STRING_LENGTH) {
             map.put("jvmInputArguments", jvmInputArguments);
             map.put("jvmClassPath", jvmClassPath);
+            map.put("cmdline", cmdline);
 
             if (reporter != null) {
                 reporter.report(PROFILER_NAME, map);
@@ -105,16 +108,16 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         } else {
             List<String> jvmInputArgumentsFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmInputArguments, Constants.MAX_STRING_LENGTH);
             List<String> jvmClassPathFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmClassPath, Constants.MAX_STRING_LENGTH);
+            List<String> cmdlineFragements = com.uber.profiling.util.StringUtils.splitByLength(cmdline, Constants.MAX_STRING_LENGTH);
 
             long fragmentSeq = 0;
-            long fragmentCount = jvmInputArgumentsFragements.size() + jvmClassPathFragements.size();
+            long fragmentCount = jvmInputArgumentsFragements.size() + jvmClassPathFragements.size() + cmdlineFragements.size();
 
             for (String entry : jvmInputArgumentsFragements) {
                 Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
                 fragmentMap.put("fragmentSeq", fragmentSeq++);
                 fragmentMap.put("fragmentCount", fragmentCount);
                 fragmentMap.put("jvmInputArguments", entry);
-                fragmentMap.put("jvmClassPath", "");
 
                 if (reporter != null) {
                     reporter.report(PROFILER_NAME, fragmentMap);
@@ -125,8 +128,18 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
                 Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
                 fragmentMap.put("fragmentSeq", fragmentSeq++);
                 fragmentMap.put("fragmentCount", fragmentCount);
-                fragmentMap.put("jvmInputArguments", "");
                 fragmentMap.put("jvmClassPath", entry);
+
+                if (reporter != null) {
+                    reporter.report(PROFILER_NAME, fragmentMap);
+                }
+            }
+
+            for (String entry : cmdlineFragements) {
+                Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
+                fragmentMap.put("fragmentSeq", fragmentSeq++);
+                fragmentMap.put("fragmentCount", fragmentCount);
+                fragmentMap.put("cmdline", entry);
 
                 if (reporter != null) {
                     reporter.report(PROFILER_NAME, fragmentMap);
@@ -139,5 +152,10 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         jvmInputArguments = StringUtils.join(ProcessUtils.getJvmInputArguments(), " ");
         jvmClassPath = ProcessUtils.getJvmClassPath();
         jvmXmxBytes = ProcessUtils.getJvmXmxBytes();
+        
+        cmdline = ProcFileUtils.getCmdline();
+        if (cmdline == null) {
+            cmdline = "";
+        }
     }
 }

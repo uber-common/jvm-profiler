@@ -19,6 +19,7 @@ package com.uber.profiling.util;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +34,7 @@ public class ProcFileUtils {
     private static final String PROC_SELF_STATUS_FILE = "/proc/self/status";
     private static final String PROC_SELF_IO_FILE = "/proc/self/io";
     private static final String PROC_STAT_FILE = "/proc/stat";
+    private static final String PROC_SELF_CMDLINE_FILE = "/proc/self/cmdline";
     private static final String VALUE_SEPARATOR = ":";
 
     public static Map<String, String> getProcStatus() {
@@ -136,5 +138,33 @@ public class ProcFileUtils {
         }
         
         return result;
+    }
+
+    public static String getPid() {
+        return getPid(PROC_SELF_STATUS_FILE);
+    }
+    
+    public static String getPid(String filePath) {
+        // See http://man7.org/linux/man-pages/man5/proc.5.html for details about proc status
+        Map<String, String> procStatus = getProcFileAsMap(filePath);
+        if (procStatus != null) {
+            return procStatus.get("Pid");
+        }
+        
+        return null;
+    }
+    
+    public static String getCmdline() {
+        try {
+            File file = new File(PROC_SELF_CMDLINE_FILE);
+            if (!file.exists() || file.isDirectory() || !file.canRead()) {
+                return null;
+            }
+
+            return new String(Files.readAllBytes(Paths.get(file.getPath())));
+        } catch (Throwable ex) {
+            logger.warn("Failed to read file " + PROC_SELF_CMDLINE_FILE, ex);
+            return null;
+        }
     }
 }

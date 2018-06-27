@@ -341,4 +341,39 @@ public class ProcFileUtilsTest {
             Assert.assertEquals(85123L, cpuTimes.get(3).get("iowait"));
         }
     }
+
+    @Test
+    public void getPid_NoValue() throws IOException {
+        File file = File.createTempFile("test", "test");
+        file.deleteOnExit();
+
+        String content = "Name:\tcat\t\n"
+                + "VmRSS:	     676 kB \r\n"
+                + "";
+        Files.write(file.toPath(), content.getBytes(), StandardOpenOption.CREATE);
+
+        String result = ProcFileUtils.getPid(file.getPath());
+        Assert.assertEquals(null, result);
+    }
+
+    @Test
+    public void getPid_HasValue() throws IOException {
+        File file = File.createTempFile("test", "test");
+        file.deleteOnExit();
+
+        String content = "Name:\tcat\t\n"
+                + "VmRSS:	     676 kB \r\n"
+                + "\t  Pid \t  : \t 66646 \t\n\r"
+                + "";
+        Files.write(file.toPath(), content.getBytes(), StandardOpenOption.CREATE);
+
+        String result = ProcFileUtils.getPid(file.getPath());
+        Assert.assertEquals("66646", result);
+    }
+
+    @Test
+    public void getCmdline() throws IOException {
+        String result = ProcFileUtils.getCmdline();
+        Assert.assertTrue(result == null || !result.isEmpty());
+    }
 }
