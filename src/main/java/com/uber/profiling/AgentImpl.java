@@ -46,7 +46,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AgentImpl {
-    public static final String VERSION = "0.0.6";
+    public static final String VERSION = "0.0.7";
     
     private static final AgentLogger logger = AgentLogger.getLogger(AgentImpl.class.getName());
 
