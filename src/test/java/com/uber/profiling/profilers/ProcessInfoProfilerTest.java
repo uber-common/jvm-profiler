@@ -17,6 +17,8 @@
 package com.uber.profiling.profilers;
 
 import com.uber.profiling.Reporter;
+import com.uber.profiling.util.ProcFileUtils;
+import com.uber.profiling.util.ProcessUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,11 +55,20 @@ public class ProcessInfoProfilerTest {
         Assert.assertTrue(metricList.size() >= 2);
 
         Assert.assertTrue(metricList.get(0).containsKey("processUuid"));
-        Assert.assertTrue(metricList.get(0).containsKey("jvmInputArguments"));
-        Assert.assertTrue(metricList.get(0).containsKey("jvmClassPath"));
-
         Assert.assertTrue(metricList.get(metricList.size() - 1).containsKey("processUuid"));
-        Assert.assertTrue(metricList.get(metricList.size() - 1).containsKey("jvmInputArguments"));
-        Assert.assertTrue(metricList.get(metricList.size() - 1).containsKey("jvmClassPath"));
+
+        Assert.assertTrue(metricList.stream().filter(map -> map.containsKey("jvmClassPath")).count() > 0);
+        
+        if (ProcessUtils.getJvmInputArguments().isEmpty()) {
+            Assert.assertTrue(metricList.stream().filter(map -> map.containsKey("jvmInputArguments")).count() == 0);
+        } else {
+            Assert.assertTrue(metricList.stream().filter(map -> map.containsKey("jvmInputArguments")).count() > 0);
+        }
+        
+        if (ProcFileUtils.getCmdline() == null || ProcFileUtils.getCmdline().isEmpty()) {
+            Assert.assertTrue(metricList.stream().filter(map -> map.containsKey("cmdline")).count() == 0);
+        } else {
+            Assert.assertTrue(metricList.stream().filter(map -> map.containsKey("cmdline")).count() > 0);
+        }
     }
 }
