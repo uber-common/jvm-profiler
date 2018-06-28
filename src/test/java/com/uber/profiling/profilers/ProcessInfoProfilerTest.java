@@ -49,6 +49,9 @@ public class ProcessInfoProfilerTest {
         profiler.profile();
         profiler.profile();
 
+        System.out.println("Metric list:");
+        System.out.println(metricList);
+        
         Assert.assertTrue(nameList.size() >= 2);
         Assert.assertEquals(ProcessInfoProfiler.PROFILER_NAME, nameList.get(0));
 

@@ -108,8 +108,8 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         }
         
         if (jvmInputArgumentsToReport.length() + jvmClassPathToReport.length() + cmdline.length() <= Constants.MAX_STRING_LENGTH) {
-            map.put("jvmInputArguments", jvmInputArguments);
-            map.put("jvmClassPath", jvmClassPath);
+            map.put("jvmInputArguments", jvmInputArgumentsToReport);
+            map.put("jvmClassPath", jvmClassPathToReport);
             map.put("cmdline", cmdline);
 
             if (reporter != null) {
