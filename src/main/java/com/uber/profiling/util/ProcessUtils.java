@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 public class ProcessUtils {
     private static final String SPARK_PROCESS_KEYWORD = "spark.yarn.app.container.log.dir";
+    private static final String SPARK_CMDLINE_KEYWORD = "org.apache.spark";
+    private static final String SPARK_EXECUTOR_CLASS_NAME = "org.apache.spark.executor.CoarseGrainedExecutorBackend";
     private static final String SPARK_EXECUTOR_KEYWORD = "spark.driver.port";
 
     private static final Pattern XMX_REGEX = Pattern.compile("-[xX][mM][xX]([a-zA-Z0-9]+)");
@@ -69,6 +71,13 @@ public class ProcessUtils {
     }
     
     public static boolean isSparkProcess() {
+        String cmdline = ProcFileUtils.getCmdline();
+        if (cmdline != null && !cmdline.isEmpty()) {
+            if (cmdline.contains(SPARK_CMDLINE_KEYWORD)) {
+                return true;
+            }
+        }
+        
         List<String> strList = ProcessUtils.getJvmInputArguments();
         for (String str : strList) {
             if (str.toLowerCase().contains(SPARK_PROCESS_KEYWORD.toLowerCase())) {
@@ -79,6 +88,13 @@ public class ProcessUtils {
     }
 
     public static boolean isSparkExecutor() {
+        String cmdline = ProcFileUtils.getCmdline();
+        if (cmdline != null && !cmdline.isEmpty()) {
+            if (cmdline.contains(SPARK_EXECUTOR_CLASS_NAME)) {
+                return true;
+            }
+        }
+        
         List<String> strList = ProcessUtils.getJvmInputArguments();
         for (String str : strList) {
             if (str.toLowerCase().contains(SPARK_EXECUTOR_KEYWORD.toLowerCase())) {
