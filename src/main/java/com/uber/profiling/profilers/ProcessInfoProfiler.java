@@ -96,8 +96,18 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         if (jvmXmxBytes != null) {
             map.put("xmxBytes", jvmXmxBytes);
         }
+
+        String jvmInputArgumentsToReport = jvmInputArguments;
+        String jvmClassPathToReport = jvmClassPath;
         
-        if (jvmInputArguments.length() + jvmClassPath.length() + cmdline.length() <= Constants.MAX_STRING_LENGTH) {
+        // Do not report jvmInputArguments and jvmClassPath if cmdline is not empty.
+        // This is because cmdline will contain duplicate information for jvmInputArguments/jvmClassPath.
+        if (!cmdline.isEmpty()) {
+            jvmInputArgumentsToReport = "";
+            jvmClassPathToReport = "";
+        }
+        
+        if (jvmInputArgumentsToReport.length() + jvmClassPathToReport.length() + cmdline.length() <= Constants.MAX_STRING_LENGTH) {
             map.put("jvmInputArguments", jvmInputArguments);
             map.put("jvmClassPath", jvmClassPath);
             map.put("cmdline", cmdline);
@@ -106,17 +116,15 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
                 reporter.report(PROFILER_NAME, map);
             }
         } else {
-            List<String> jvmInputArgumentsFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmInputArguments, Constants.MAX_STRING_LENGTH);
-            List<String> jvmClassPathFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmClassPath, Constants.MAX_STRING_LENGTH);
+            List<String> jvmInputArgumentsFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmInputArgumentsToReport, Constants.MAX_STRING_LENGTH);
+            List<String> jvmClassPathFragements = com.uber.profiling.util.StringUtils.splitByLength(jvmClassPathToReport, Constants.MAX_STRING_LENGTH);
             List<String> cmdlineFragements = com.uber.profiling.util.StringUtils.splitByLength(cmdline, Constants.MAX_STRING_LENGTH);
 
             long fragmentSeq = 0;
             long fragmentCount = jvmInputArgumentsFragements.size() + jvmClassPathFragements.size() + cmdlineFragements.size();
 
             for (String entry : jvmInputArgumentsFragements) {
-                Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
-                fragmentMap.put("fragmentSeq", fragmentSeq++);
-                fragmentMap.put("fragmentCount", fragmentCount);
+                Map<String, Object> fragmentMap = createFragmentMap(map, fragmentSeq++, fragmentCount);
                 fragmentMap.put("jvmInputArguments", entry);
 
                 if (reporter != null) {
@@ -125,9 +133,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
             }
 
             for (String entry : jvmClassPathFragements) {
-                Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
-                fragmentMap.put("fragmentSeq", fragmentSeq++);
-                fragmentMap.put("fragmentCount", fragmentCount);
+                Map<String, Object> fragmentMap = createFragmentMap(map, fragmentSeq++, fragmentCount);
                 fragmentMap.put("jvmClassPath", entry);
 
                 if (reporter != null) {
@@ -136,9 +142,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
             }
 
             for (String entry : cmdlineFragements) {
-                Map<String, Object> fragmentMap = new HashMap<String, Object>(map);
-                fragmentMap.put("fragmentSeq", fragmentSeq++);
-                fragmentMap.put("fragmentCount", fragmentCount);
+                Map<String, Object> fragmentMap = createFragmentMap(map, fragmentSeq++, fragmentCount);
                 fragmentMap.put("cmdline", entry);
 
                 if (reporter != null) {
@@ -157,5 +161,16 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
         if (cmdline == null) {
             cmdline = "";
         }
+    }
+    
+    private Map<String, Object> createFragmentMap(Map<String, Object> copyFrom, long fragmentSeq, long fragmentCount) {
+        Map<String, Object> fragmentMap = new HashMap<String, Object>(copyFrom);
+        fragmentMap.put("fragmentSeq", fragmentSeq);
+        fragmentMap.put("fragmentCount", fragmentCount);
+        fragmentMap.put("jvmInputArguments", "");
+        fragmentMap.put("jvmClassPath", "");
+        fragmentMap.put("cmdline", "");
+        
+        return fragmentMap;
     }
 }
