@@ -17,6 +17,7 @@
 package com.uber.profiling.profilers;
 
 import com.uber.profiling.util.NetworkUtils;
+import com.uber.profiling.util.ProcFileUtils;
 import com.uber.profiling.util.ProcessUtils;
 import com.uber.profiling.util.SparkUtils;
 
@@ -109,7 +110,8 @@ public class ProcessInfoBase {
             return role;
         }
         
-        role = SparkUtils.probeRole();
+        String cmdline = ProcFileUtils.getCmdline();
+        role = SparkUtils.probeRole(cmdline);
         return role;
     }
 }
