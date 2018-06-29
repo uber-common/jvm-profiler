@@ -161,7 +161,9 @@ public class ProcFileUtils {
                 return null;
             }
 
-            return new String(Files.readAllBytes(Paths.get(file.getPath())));
+            String cmdline = new String(Files.readAllBytes(Paths.get(file.getPath())));
+            cmdline = cmdline.replace((char)0, ' ');
+            return cmdline;
         } catch (Throwable ex) {
             logger.warn("Failed to read file " + PROC_SELF_CMDLINE_FILE, ex);
             return null;

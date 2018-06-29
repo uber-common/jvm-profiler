@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 public class ProcessUtils {
     private static final String SPARK_PROCESS_KEYWORD = "spark.yarn.app.container.log.dir";
-    private static final String SPARK_CMDLINE_KEYWORD = "org.apache.spark";
-    private static final String SPARK_EXECUTOR_CLASS_NAME = "org.apache.spark.executor.CoarseGrainedExecutorBackend";
+    private static final String SPARK_CMDLINE_KEYWORD = "spark.";
+    private static final String SPARK_EXECUTOR_CLASS_NAME = "spark.executor.CoarseGrainedExecutorBackend";
     private static final String SPARK_EXECUTOR_KEYWORD = "spark.driver.port";
 
     private static final Pattern XMX_REGEX = Pattern.compile("-[xX][mM][xX]([a-zA-Z0-9]+)");
@@ -70,8 +70,7 @@ public class ProcessUtils {
         return result;
     }
     
-    public static boolean isSparkProcess() {
-        String cmdline = ProcFileUtils.getCmdline();
+    public static boolean isSparkProcess(String cmdline) {
         if (cmdline != null && !cmdline.isEmpty()) {
             if (cmdline.contains(SPARK_CMDLINE_KEYWORD)) {
                 return true;
@@ -87,8 +86,7 @@ public class ProcessUtils {
         return false;
     }
 
-    public static boolean isSparkExecutor() {
-        String cmdline = ProcFileUtils.getCmdline();
+    public static boolean isSparkExecutor(String cmdline) {
         if (cmdline != null && !cmdline.isEmpty()) {
             if (cmdline.contains(SPARK_EXECUTOR_CLASS_NAME)) {
                 return true;
@@ -104,14 +102,14 @@ public class ProcessUtils {
         return false;
     }
 
-    public static boolean isSparkDriver() {
-        return isSparkProcess() && !isSparkExecutor();
+    public static boolean isSparkDriver(String cmdline) {
+        return isSparkProcess(cmdline) && !isSparkExecutor(cmdline);
     }
 
     public static void main(String[] args) {
         System.out.println(getCurrentProcessName());
-        System.out.println(isSparkProcess());
-        System.out.println(isSparkExecutor());
-        System.out.println(isSparkDriver());
+        System.out.println(isSparkProcess(null));
+        System.out.println(isSparkExecutor(null));
+        System.out.println(isSparkDriver(null));
     }
 }

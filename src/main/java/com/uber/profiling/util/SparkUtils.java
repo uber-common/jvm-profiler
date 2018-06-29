@@ -69,10 +69,10 @@ public class SparkUtils {
         }
     }
 
-    public static String probeRole() {
-        if (ProcessUtils.isSparkExecutor()) {
+    public static String probeRole(String cmdline) {
+        if (ProcessUtils.isSparkExecutor(cmdline)) {
             return Constants.EXECUTOR_ROLE;
-        } else if (ProcessUtils.isSparkDriver()) {
+        } else if (ProcessUtils.isSparkDriver(cmdline)) {
             return Constants.DRIVER_ROLE;
         } else {
             return null;
