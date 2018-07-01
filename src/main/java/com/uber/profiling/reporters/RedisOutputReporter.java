@@ -48,7 +48,6 @@ public class RedisOutputReporter implements Reporter {
     private void ensureJedisConn() {
         synchronized (this) {
             if (redisConn == null || redisConn.isClosed()) {
-                System.out.println("Attempting Connection");
                 redisConn = new JedisPool(System.getenv("JEDIS_PROFILER_CONNECTION"));
                 return;
             }
