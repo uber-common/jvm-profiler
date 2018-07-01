@@ -51,9 +51,6 @@ public class RedisOutputReporter implements Reporter {
                 System.out.println("Attempting Connection");
                 redisConn = new JedisPool(System.getenv("JEDIS_PROFILER_CONNECTION"));
                 return;
-            } else {
-                System.out.println("connection exists");
-                return;
             }
         }
     }
