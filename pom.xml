@@ -226,6 +226,10 @@
                                     <shadedPattern>ujagent_org.yaml</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>redis.clients</pattern>
+                                    <shadedPattern>ujagent_shaded.redis.clients</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>ch</pattern>
                                     <shadedPattern>ujagent_shaded.ch</shadedPattern>
                                 </relocation>
