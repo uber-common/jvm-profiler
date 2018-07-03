@@ -55,7 +55,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.8.9</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
@@ -74,7 +74,15 @@
             <version>4.3.6</version>
         </dependency>
 
-		<!--Test-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <!--Test-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -216,6 +224,10 @@
                                 <relocation>
                                     <pattern>org.yaml</pattern>
                                     <shadedPattern>ujagent_org.yaml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>redis.clients</pattern>
+                                    <shadedPattern>ujagent_shaded.redis.clients</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>ch</pattern>
