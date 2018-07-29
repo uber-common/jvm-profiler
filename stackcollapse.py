@@ -16,11 +16,12 @@ with open(inputFile) as f:
 
         assert 'stacktrace' in stacktraceLog, "Malformated json. 'stacktrace' key doesn't exist."
         stacktrace = stacktraceLog['stacktrace']
-        assert 'count' in stacktraceLog, "Malformated json. 'count' key doesn't exist."
-        count = stacktraceLog['count']
 
         if len(stacktrace) == 0:
             continue
+
+        assert 'count' in stacktraceLog, "Malformated json. 'count' key doesn't exist."
+        count = stacktraceLog['count']
 
         key = ';'.join(list(reversed(stacktrace)))
         if key in stacktraceDict:
