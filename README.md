@@ -24,6 +24,15 @@ Following command will start the example application with the profiler agent att
 java -javaagent:target/jvm-profiler-0.0.7.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-0.0.7.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 
+## Example to Run with Spark Application
+
+You could upload jvm-profiler jar file to HDFS so the Spark application executors could access it. Then add configuration like following when launching Spark application:
+
+```
+--conf spark.jars=hdfs://hdfs_url/lib/jvm-profiler-0.0.7.jar
+--conf spark.executor.extraJavaOptions=-javaagent:jvm-profiler-0.0.7.jar
+```
+
 ## Send Metrics to Kafka
 
 Uber JVM Profiler supports sending metrics to Kafka. For example,
@@ -32,6 +41,10 @@ Uber JVM Profiler supports sending metrics to Kafka. For example,
 java -javaagent:target/jvm-profiler-0.0.7.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-0.0.7.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 It will send metrics to Kafka topic profiler_CpuAndMemory. See bottom of this document for an example of the metrics.
+
+## More Details
+
+See [JVM Profiler Blog Post](https://eng.uber.com/jvm-profiler/).
 
 ## Feature List
 
