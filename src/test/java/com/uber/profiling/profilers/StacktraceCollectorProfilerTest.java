@@ -234,7 +234,6 @@ public class StacktraceCollectorProfilerTest {
         
         ClassAndMethod[] stack = testThreadStacktrace.get(0).getStack();
         Assert.assertTrue(stack.length > 1);
-        Assert.assertTrue(stack.length < 30);
         Assert.assertEquals(new ClassAndMethod("_stack_", "_trimmed_"), stack[0]);
 
         Assert.assertEquals(1, testThreadStacktraceCount.size());

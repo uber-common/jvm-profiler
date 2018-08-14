@@ -19,7 +19,7 @@ package com.uber.profiling.profilers;
 public class Constants {
     public final static long DEFAULT_METRIC_INTERVAL = 60000;
 
-    public static final int MAX_STRING_LENGTH = 2000;
+    public static final int MAX_STRING_LENGTH = 20000;
 
     public final static String EXECUTOR_ROLE = "executor";
     public final static String DRIVER_ROLE = "driver";
