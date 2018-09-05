@@ -194,7 +194,7 @@ public class StacktraceCollectorProfilerTest {
     @Test
     public void profile_largeStack() throws InterruptedException {
         StacktraceMetricBuffer buffer = new StacktraceMetricBuffer();
-        StacktraceCollectorProfiler profiler = new StacktraceCollectorProfiler(buffer, null);
+        StacktraceCollectorProfiler profiler = new StacktraceCollectorProfiler(buffer, null, 20000);
 
         profiler.setIntervalMillis(123);
         Assert.assertEquals(123L, profiler.getIntervalMillis());

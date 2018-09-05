@@ -35,11 +35,17 @@ public class StacktraceCollectorProfiler implements Profiler {
     private long intervalMillis;
     private StacktraceMetricBuffer buffer;
     private String ignoreThreadNamePrefix = "";
+    private int maxStringLength = Constants.MAX_STRING_LENGTH;
     private ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 
     public StacktraceCollectorProfiler(StacktraceMetricBuffer buffer, String ignoreThreadNamePrefix) {
+        this(buffer, ignoreThreadNamePrefix, Constants.MAX_STRING_LENGTH);
+    }
+
+    public StacktraceCollectorProfiler(StacktraceMetricBuffer buffer, String ignoreThreadNamePrefix, int maxStringLength) {
         this.buffer = buffer;
         this.ignoreThreadNamePrefix = ignoreThreadNamePrefix == null ? "" : ignoreThreadNamePrefix;
+        this.maxStringLength = maxStringLength;
     }
 
     public void setIntervalMillis(long intervalMillis) {
@@ -90,7 +96,7 @@ public class StacktraceCollectorProfiler implements Profiler {
 
                 totalLength += className.length() + methodName.length();
                 
-                if (totalLength >= Constants.MAX_STRING_LENGTH) {
+                if (totalLength >= maxStringLength) {
                     stack.add(new ClassAndMethod("_stack_", "_trimmed_"));
                     break;
                 }
