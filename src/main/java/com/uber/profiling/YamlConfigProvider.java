@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,7 +121,11 @@ public class YamlConfigProvider implements ConfigProvider {
                             logger.warn("Invalid override property: " + valueObj);
                         }
                     } else {
-                        addConfig(result, "", configKey, valueObj);
+                        if (valueObj instanceof Map) {
+                            addMapConfig(result, "", configKey, (Map)valueObj);
+                        }else{
+                            addConfig(result, "", configKey, valueObj);
+                        }
                     }
                 }
                 
@@ -138,13 +143,7 @@ public class YamlConfigProvider implements ConfigProvider {
                         }
                         
                         Map<Object, Object> overrideValues = (Map<Object, Object>)valueObj;
-                        for (Map.Entry<Object, Object> entry : overrideValues.entrySet()) {
-                            if (entry.getValue() == null) {
-                                continue;
-                            }
-                            String configKey = entry.getKey().toString();
-                            addConfig(result, overrideKey, configKey, entry.getValue());
-                        }
+                        addMapConfig(result, overrideKey, OVERRIDE_KEY + "." + overrideKey, overrideValues);
                     }
                 }
 
@@ -158,18 +157,33 @@ public class YamlConfigProvider implements ConfigProvider {
     
     private static void addConfig(Map<String, Map<String, List<String>>> config, String override, String key, Object value) {
         Map<String, List<String>> configMap = config.computeIfAbsent(override, k -> new HashMap<>());
-        List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());
         
         if (value instanceof List) {
+            int count = 0;
             for (Object entry : (List)value) {
-                configValueList.add(entry.toString());
+                configMap.put(key + "[" + count++ + "]", Arrays.asList(entry.toString()));
             }
         } else if (value instanceof Object[]) {
+            int count = 0;
             for (Object entry : (Object[])value) {
-                configValueList.add(entry.toString());
+                configMap.put(key + "[" + count++ + "]", Arrays.asList(entry.toString()));
             }
         } else {
-            configValueList.add(value.toString());
+            configMap.put(key, Arrays.asList(value.toString()));
+        }
+    }
+    
+    private static void addMapConfig(Map<String, Map<String, List<String>>> result, String override, String configKey, Map valueObj) {
+        for (Object key : valueObj.keySet()) {
+            String propKey = key.toString();
+            Object propValue = valueObj.get(propKey);
+            if (propValue != null) {
+                if (propValue instanceof Map) {
+                    addMapConfig(result, override, configKey + "." + propKey, (Map) propValue);
+                } else {
+                    addConfig(result, override, configKey + "." + propKey, propValue);
+                }
+            }
         }
     }
 
