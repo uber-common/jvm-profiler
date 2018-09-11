@@ -88,6 +88,8 @@ The java agent supports following parameters, which could be used in Java comman
 
 - topicPrefix: topic prefix if using com.uber.profiling.reporters.KafkaOutputReporter. KafkaOutputReporter will send metrics to multiple topics with this value as the prefix for topic names.
 
+- outputDir: output directory if using com.uber.profiling.reporters.FileOutputReporter. FileOutputReporter will write metrics into this directory.
+
 ## Metrics Example
 
 Following is an example of CPU and Memory metrics when using ConsoleOutputReporter or KafkaOutputReporter:
