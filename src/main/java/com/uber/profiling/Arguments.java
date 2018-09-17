@@ -18,6 +18,7 @@ package com.uber.profiling;
 
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.reporters.FileOutputReporter;
+import com.uber.profiling.reporters.InfluxDBOutputReporter;
 import com.uber.profiling.reporters.KafkaOutputReporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethod;
@@ -313,6 +314,11 @@ public class Arguments {
                 } else if (reporter instanceof FileOutputReporter) {
                     FileOutputReporter fileOutputReporter = (FileOutputReporter)reporter;
                     fileOutputReporter.setDirectory(outputDir);
+                }else if (reporter instanceof InfluxDBOutputReporter) {
+                    InfluxDBOutputReporter influxDBOutputReporter = (InfluxDBOutputReporter)reporter;
+                    if(!rawArgValues.isEmpty()){
+                        influxDBOutputReporter.setProperties(rawArgValues);
+                    }
                 }
                 return reporter;
             } catch (Throwable e) {

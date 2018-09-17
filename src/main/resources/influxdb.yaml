@@ -1,0 +1,6 @@
+influxdb:
+  host: 127.0.0.1
+  port: 8086
+  database: metrics
+  username: user1
+  password: password1
