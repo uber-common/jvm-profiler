@@ -23,6 +23,7 @@ import com.uber.profiling.util.JsonUtils;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,15 @@ public class FileOutputReporter implements Reporter {
     public void setDirectory(String directory) {
         synchronized (this) {
             if (this.directory == null || this.directory.isEmpty()) {
+                Path path = Paths.get(directory);
+                try {
+                    if (!Files.exists(path)) {
+                        Files.createDirectory(path);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to create directory: " + path, e);
+                }
+
                 this.directory = directory;
             } else {
                 throw new RuntimeException(String.format("Cannot set directory to %s because it is already has value %s", directory, this.directory));
