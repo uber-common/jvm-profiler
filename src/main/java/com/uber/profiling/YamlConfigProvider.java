@@ -29,7 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,11 +120,7 @@ public class YamlConfigProvider implements ConfigProvider {
                             logger.warn("Invalid override property: " + valueObj);
                         }
                     } else {
-                        if (valueObj instanceof Map) {
-                            addMapConfig(result, "", configKey, (Map)valueObj);
-                        }else{
-                            addConfig(result, "", configKey, valueObj);
-                        }
+                        addConfig(result, "", configKey, valueObj);
                     }
                 }
                 
@@ -143,7 +138,7 @@ public class YamlConfigProvider implements ConfigProvider {
                         }
                         
                         Map<Object, Object> overrideValues = (Map<Object, Object>)valueObj;
-                        addMapConfig(result, overrideKey, OVERRIDE_KEY + "." + overrideKey, overrideValues);
+                        addConfig(result, overrideKey, OVERRIDE_KEY + "." + overrideKey, overrideValues);
                     }
                 }
 
@@ -167,22 +162,17 @@ public class YamlConfigProvider implements ConfigProvider {
             for (Object entry : (Object[])value) {
                 configValueList.add(entry.toString());
             }
+         } else if (value instanceof Map) {
+            for (Object mapKey : ((Map)value).keySet()) {
+                String propKey = mapKey.toString();
+                Object propValue = ((Map)value).get(propKey);
+                if (propValue != null) {
+                    addConfig(config, override, key + "." + propKey, propValue);
+                 }
+            }
+            configMap.values().removeIf(List::isEmpty);
         } else {
             configValueList.add(value.toString());
-        }
-    }
-    
-    private static void addMapConfig(Map<String, Map<String, List<String>>> result, String override, String configKey, Map valueObj) {
-        for (Object key : valueObj.keySet()) {
-            String propKey = key.toString();
-            Object propValue = valueObj.get(propKey);
-            if (propValue != null) {
-                if (propValue instanceof Map) {
-                    addMapConfig(result, override, configKey + "." + propKey, (Map) propValue);
-                } else {
-                    addConfig(result, override, configKey + "." + propKey, propValue);
-                }
-            }
         }
     }
 
