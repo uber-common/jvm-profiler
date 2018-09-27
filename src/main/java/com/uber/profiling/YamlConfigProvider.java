@@ -138,7 +138,13 @@ public class YamlConfigProvider implements ConfigProvider {
                         }
                         
                         Map<Object, Object> overrideValues = (Map<Object, Object>)valueObj;
-                        addConfig(result, overrideKey, OVERRIDE_KEY + "." + overrideKey, overrideValues);
+                        for (Map.Entry<Object, Object> entry : overrideValues.entrySet()) {
+                            if (entry.getValue() == null) {
+                                continue;
+                            }
+                            String configKey = entry.getKey().toString();
+                            addConfig(result, overrideKey, configKey, entry.getValue());
+                        }
                     }
                 }
 

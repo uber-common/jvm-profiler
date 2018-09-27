@@ -91,9 +91,9 @@ public class YamlConfigProviderTest {
 
             Map<String, List<String>> override1Config = config.get("override1");
             Assert.assertEquals(3, override1Config.size());
-            Assert.assertEquals(Arrays.asList("value11"), override1Config.get("override.override1.key1"));
-            Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("override.override1.key2"));
-            Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("override.override1.key3.key3a"));
+            Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
+            Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
+            Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("key3.key3a"));
         }
     }
 
@@ -141,8 +141,8 @@ public class YamlConfigProviderTest {
 
         Map<String, List<String>> override1Config = config.get("override1");
         Assert.assertEquals(3, override1Config.size());
-        Assert.assertEquals(Arrays.asList("value11"), override1Config.get("override.override1.key1"));
-        Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("override.override1.key2"));
-        Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("override.override1.key3.key3a"));
+        Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
+        Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
+        Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("key3.key3a"));
     }
 }
