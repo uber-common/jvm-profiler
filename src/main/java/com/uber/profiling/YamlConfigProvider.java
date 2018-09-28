@@ -158,17 +158,27 @@ public class YamlConfigProvider implements ConfigProvider {
     
     private static void addConfig(Map<String, Map<String, List<String>>> config, String override, String key, Object value) {
         Map<String, List<String>> configMap = config.computeIfAbsent(override, k -> new HashMap<>());
-        List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());
         
         if (value instanceof List) {
+            List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());
             for (Object entry : (List)value) {
                 configValueList.add(entry.toString());
             }
         } else if (value instanceof Object[]) {
+            List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());      
             for (Object entry : (Object[])value) {
                 configValueList.add(entry.toString());
             }
+         } else if (value instanceof Map) {
+            for (Object mapKey : ((Map)value).keySet()) {
+                String propKey = mapKey.toString();
+                Object propValue = ((Map)value).get(propKey);
+                if (propValue != null) {
+                    addConfig(config, override, key + "." + propKey, propValue);
+                 }
+            }
         } else {
+            List<String> configValueList = configMap.computeIfAbsent(key, k -> new ArrayList<>());
             configValueList.add(value.toString());
         }
     }
