@@ -62,12 +62,19 @@ public class YamlConfigProviderTest {
                     "key2:\n" +
                     "- value2a\n" +
                     "- value2b\n" +
+                    "key3:\n" +
+                    "    key3a: value3a\n" +
+                    "    key3b:\n" +
+                    "    - value3b\n" +
+                    "    - value3c\n" +
                     "override:\n" +
                     "  override1: \n" +
                     "    key1: value11\n" +
                     "    key2:\n" +
                     "    - value22a\n" +
                     "    - value22b\n" +
+                    "    key3:\n" +
+                    "      key3a: value33a\n" +
                     "";
             Files.write(file.toPath(), content.getBytes(), StandardOpenOption.CREATE);
 
@@ -76,14 +83,17 @@ public class YamlConfigProviderTest {
             Assert.assertEquals(2, config.size());
 
             Map<String, List<String>> rootConfig = config.get("");
-            Assert.assertEquals(2, rootConfig.size());
+            Assert.assertEquals(4, rootConfig.size());
             Assert.assertEquals(Arrays.asList("value1"), rootConfig.get("key1"));
             Assert.assertEquals(Arrays.asList("value2a", "value2b"), rootConfig.get("key2"));
+            Assert.assertEquals(Arrays.asList("value3a"), rootConfig.get("key3.key3a"));
+            Assert.assertEquals(Arrays.asList("value3b", "value3c"), rootConfig.get("key3.key3b"));
 
             Map<String, List<String>> override1Config = config.get("override1");
-            Assert.assertEquals(2, override1Config.size());
+            Assert.assertEquals(3, override1Config.size());
             Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
             Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
+            Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("key3.key3a"));
         }
     }
 
@@ -100,12 +110,19 @@ public class YamlConfigProviderTest {
                 "key2:\n" +
                 "- value2a\n" +
                 "- value2b\n" +
+                "key3:\n" +
+                "    key3a: value3a\n" +
+                "    key3b:\n" +
+                "    - value3b\n" +
+                "    - value3c\n" +
                 "override:\n" +
                 "  override1: \n" +
                 "    key1: value11\n" +
                 "    key2:\n" +
                 "    - value22a\n" +
                 "    - value22b\n" +
+                "    key3:\n" +
+                "      key3a: value33a\n" +
                 "";
         
         Path path = Files.createTempFile("jvm-profiler_", ".yaml");
@@ -117,13 +134,15 @@ public class YamlConfigProviderTest {
         Assert.assertEquals(2, config.size());
 
         Map<String, List<String>> rootConfig = config.get("");
-        Assert.assertEquals(2, rootConfig.size());
+        Assert.assertEquals(4, rootConfig.size());
         Assert.assertEquals(Arrays.asList("value1"), rootConfig.get("key1"));
         Assert.assertEquals(Arrays.asList("value2a", "value2b"), rootConfig.get("key2"));
+        Assert.assertEquals(Arrays.asList("value3b", "value3c"), rootConfig.get("key3.key3b"));
 
         Map<String, List<String>> override1Config = config.get("override1");
-        Assert.assertEquals(2, override1Config.size());
+        Assert.assertEquals(3, override1Config.size());
         Assert.assertEquals(Arrays.asList("value11"), override1Config.get("key1"));
         Assert.assertEquals(Arrays.asList("value22a", "value22b"), override1Config.get("key2"));
+        Assert.assertEquals(Arrays.asList("value33a"), override1Config.get("key3.key3a"));
     }
 }
