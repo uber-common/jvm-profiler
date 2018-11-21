@@ -24,10 +24,6 @@ import java.util.Map;
 
 public class ConsoleOutputReporter implements Reporter {
     @Override
-    public void updateArguments(Map<String, List<String>> parsedArgs) {
-    }
-
-    @Override
     public void report(String profilerName, Map<String, Object> metrics) {
         System.out.println(String.format("ConsoleOutputReporter - %s: %s", profilerName, JsonUtils.serialize(metrics)));
     }

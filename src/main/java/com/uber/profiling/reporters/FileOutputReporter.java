@@ -17,7 +17,7 @@
 package com.uber.profiling.reporters;
 
 import com.uber.profiling.Reporter;
-import com.uber.profiling.ReporterUtils;
+import com.uber.profiling.ArgumentUtils;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
 
@@ -71,8 +71,8 @@ public class FileOutputReporter implements Reporter {
 
     @Override
     public void updateArguments(Map<String, List<String>> parsedArgs) {
-        String argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
-        if (ReporterUtils.needToUpdateArg(argValue)) {
+        String argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             setDirectory(argValue);
             logger.info("Got argument value for outputDir: " + argValue);
         }

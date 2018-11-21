@@ -16,10 +16,11 @@
 
 package com.uber.profiling;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ReporterUtils {
+public class ArgumentUtils {
 
     public static boolean needToUpdateArg(String argValue) {
         return argValue != null && !argValue.isEmpty();
@@ -36,5 +37,13 @@ public class ReporterUtils {
         }
 
         return list.get(list.size() - 1);
+    }
+
+    public static List<String> getArgumentMultiValues(Map<String, List<String>> parsedArgs, String argName) {
+        List<String> list = parsedArgs.get(argName);
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        return list;
     }
 }

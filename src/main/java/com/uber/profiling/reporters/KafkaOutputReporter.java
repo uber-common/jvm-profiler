@@ -17,7 +17,7 @@
 package com.uber.profiling.reporters;
 
 import com.uber.profiling.Reporter;
-import com.uber.profiling.ReporterUtils;
+import com.uber.profiling.ArgumentUtils;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -60,20 +60,20 @@ public class KafkaOutputReporter implements Reporter {
 
     @Override
     public void updateArguments(Map<String, List<String>> parsedArgs) {
-        String argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
-        if (ReporterUtils.needToUpdateArg(argValue)) {
+        String argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             setBrokerList(argValue);
             logger.info("Got argument value for brokerList: " + brokerList);
         }
 
-        argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
-        if (ReporterUtils.needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             setSyncMode(Boolean.parseBoolean(argValue));
             logger.info("Got argument value for syncMode: " + syncMode);
         }
 
-        argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
-        if (ReporterUtils.needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             setTopicPrefix(argValue);
             logger.info("Got argument value for topicPrefix: " + topicPrefix);
         }

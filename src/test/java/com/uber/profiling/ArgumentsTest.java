@@ -181,10 +181,6 @@ public class ArgumentsTest {
     
     public static class DummyReporter implements Reporter {
         @Override
-        public void updateArguments(Map<String, List<String>> parsedArgs) {
-        }
-
-        @Override
         public void report(String profilerName, Map<String, Object> metrics) {
         }
 

@@ -34,10 +34,6 @@ public class ProcessInfoProfilerTest {
 
         ProcessInfoProfiler profiler = new ProcessInfoProfiler(new Reporter() {
             @Override
-            public void updateArguments(Map<String, List<String>> parsedArgs) {
-            }
-
-            @Override
             public void report(String profilerName, Map<String, Object> metrics) {
                 nameList.add(profilerName);
                 metricList.add(metrics);
