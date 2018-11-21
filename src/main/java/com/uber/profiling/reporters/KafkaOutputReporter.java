@@ -17,6 +17,8 @@
 package com.uber.profiling.reporters;
 
 import com.uber.profiling.Reporter;
+import com.uber.profiling.ReporterUtils;
+import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -24,6 +26,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +34,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class KafkaOutputReporter implements Reporter {
+    public final static String ARG_BROKER_LIST = "brokerList";
+    public final static String ARG_SYNC_MODE = "syncMode";
+    public final static String ARG_TOPIC_PREFIX = "topicPrefix";
+
+    private static final AgentLogger logger = AgentLogger.getLogger(KafkaOutputReporter.class.getName());
+    
     private String brokerList = "localhost:9092";
     private boolean syncMode = false;
     
@@ -47,6 +56,27 @@ public class KafkaOutputReporter implements Reporter {
         this.brokerList = brokerList;
         this.syncMode = syncMode;
         this.topicPrefix = topicPrefix;
+    }
+
+    @Override
+    public void updateArguments(Map<String, List<String>> parsedArgs) {
+        String argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
+        if (ReporterUtils.needToUpdateArg(argValue)) {
+            setBrokerList(argValue);
+            logger.info("Got argument value for brokerList: " + brokerList);
+        }
+
+        argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
+        if (ReporterUtils.needToUpdateArg(argValue)) {
+            setSyncMode(Boolean.parseBoolean(argValue));
+            logger.info("Got argument value for syncMode: " + syncMode);
+        }
+
+        argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
+        if (ReporterUtils.needToUpdateArg(argValue)) {
+            setTopicPrefix(argValue);
+            logger.info("Got argument value for topicPrefix: " + topicPrefix);
+        }
     }
 
     @Override

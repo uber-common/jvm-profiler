@@ -17,6 +17,7 @@
 package com.uber.profiling.reporters;
 
 import com.uber.profiling.Reporter;
+import com.uber.profiling.ReporterUtils;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
 
@@ -30,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileOutputReporter implements Reporter {
+    public final static String ARG_OUTPUT_DIR = "outputDir";
+    
     private static final AgentLogger logger = AgentLogger.getLogger(FileOutputReporter.class.getName());
     
     private String directory;
@@ -53,6 +56,15 @@ public class FileOutputReporter implements Reporter {
             } else {
                 throw new RuntimeException(String.format("Cannot set directory to %s because it is already has value %s", directory, this.directory));
             }
+        }
+    }
+
+    @Override
+    public void updateArguments(Map<String, List<String>> parsedArgs) {
+        String argValue = ReporterUtils.getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
+        if (ReporterUtils.needToUpdateArg(argValue)) {
+            setDirectory(argValue);
+            logger.info("Got argument value for outputDir: " + argValue);
         }
     }
 

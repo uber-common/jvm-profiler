@@ -19,12 +19,22 @@ package com.uber.profiling;
 import java.util.List;
 import java.util.Map;
 
-public interface Reporter {
-    
-    default void updateArguments(Map<String, List<String>> parsedArgs) {
+public class ReporterUtils {
+
+    public static boolean needToUpdateArg(String argValue) {
+        return argValue != null && !argValue.isEmpty();
     }
 
-    void report(String profilerName, Map<String, Object> metrics);
+    public static String getArgumentSingleValue(Map<String, List<String>> parsedArgs, String argName) {
+        List<String> list = parsedArgs.get(argName);
+        if (list == null) {
+            return null;
+        }
 
-    void close();
+        if (list.isEmpty()) {
+            return "";
+        }
+
+        return list.get(list.size() - 1);
+    }
 }

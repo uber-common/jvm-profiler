@@ -17,8 +17,6 @@
 package com.uber.profiling;
 
 import com.uber.profiling.reporters.ConsoleOutputReporter;
-import com.uber.profiling.reporters.FileOutputReporter;
-import com.uber.profiling.reporters.KafkaOutputReporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassMethodArgument;
@@ -50,12 +48,6 @@ public class Arguments {
     public final static String ARG_DURATION_PROFILING = "durationProfiling";
     public final static String ARG_ARGUMENT_PROFILING = "argumentProfiling";
     
-    public final static String ARG_BROKER_LIST = "brokerList";
-    public final static String ARG_SYNC_MODE = "syncMode";
-    public final static String ARG_TOPIC_PREFIX = "topicPrefix";
-
-    public final static String ARG_OUTPUT_DIR = "outputDir";
-    
     public final static String ARG_IO_PROFILING = "ioProfiling";
 
     public static final long MIN_INTERVAL_MILLIS = 50;
@@ -76,10 +68,6 @@ public class Arguments {
     private long sampleInterval = 0L;
     private String tag;
     private String cluster;
-    private String brokerList;
-    private boolean syncMode;
-    private String topicPrefix;
-    private String outputDir;
     private boolean ioProfiling;
 
     private List<ClassAndMethod> durationProfiling = new ArrayList<>();
@@ -233,30 +221,6 @@ public class Arguments {
             }
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
-        if (needToUpdateArg(argValue)) {
-            brokerList = argValue;
-            logger.info("Got argument value for brokerList: " + brokerList);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
-        if (needToUpdateArg(argValue)) {
-            syncMode = Boolean.parseBoolean(argValue);
-            logger.info("Got argument value for syncMode: " + syncMode);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
-        if (needToUpdateArg(argValue)) {
-            topicPrefix = argValue;
-            logger.info("Got argument value for topicPrefix: " + topicPrefix);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
-        if (needToUpdateArg(argValue)) {
-            outputDir = argValue;
-            logger.info("Got argument value for outputDir: " + outputDir);
-        }
-
         argValue = getArgumentSingleValue(parsedArgs, ARG_IO_PROFILING);
         if (needToUpdateArg(argValue)) {
             ioProfiling = Boolean.parseBoolean(argValue);
@@ -301,19 +265,7 @@ public class Arguments {
         } else {
             try {
                 Reporter reporter = reporterConstructor.newInstance();
-                if (reporter instanceof KafkaOutputReporter) {
-                    KafkaOutputReporter kafkaOutputReporter = (KafkaOutputReporter)reporter;
-                    if (brokerList != null && !brokerList.isEmpty()) {
-                        kafkaOutputReporter.setBrokerList(brokerList);
-                    }
-                    kafkaOutputReporter.setSyncMode(syncMode);
-                    if (topicPrefix != null && !topicPrefix.isEmpty()) {
-                        kafkaOutputReporter.setTopicPrefix(topicPrefix);
-                    }
-                } else if (reporter instanceof FileOutputReporter) {
-                    FileOutputReporter fileOutputReporter = (FileOutputReporter)reporter;
-                    fileOutputReporter.setDirectory(outputDir);
-                }
+                reporter.updateArguments(getRawArgValues());
                 return reporter;
             } catch (Throwable e) {
                 throw new RuntimeException(String.format("Failed to create reporter instance %s", reporterConstructor.getDeclaringClass()), e);
@@ -387,14 +339,6 @@ public class Arguments {
 
     public List<ClassMethodArgument> getArgumentProfiling() {
         return argumentProfiling;
-    }
-
-    public String getBrokerList() {
-        return brokerList;
-    }
-
-    public boolean isSyncMode() {
-        return syncMode;
     }
 
     public boolean isIoProfiling() {

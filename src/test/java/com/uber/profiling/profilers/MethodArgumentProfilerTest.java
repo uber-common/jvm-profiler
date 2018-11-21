@@ -38,6 +38,10 @@ public class MethodArgumentProfilerTest {
 
         Reporter reporter = new Reporter() {
             @Override
+            public void updateArguments(Map<String, List<String>> parsedArgs) {
+            }
+
+            @Override
             public void report(String profilerName, Map<String, Object> metrics) {
                 nameList.add(profilerName);
                 metricList.add(metrics);
