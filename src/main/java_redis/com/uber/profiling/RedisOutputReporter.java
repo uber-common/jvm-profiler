@@ -7,6 +7,7 @@ import com.uber.profiling.util.JsonUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import redis.clients.jedis.Jedis;
@@ -17,7 +18,12 @@ public class RedisOutputReporter implements Reporter {
     private static final AgentLogger logger = AgentLogger.getLogger(RedisOutputReporter.class.getName());
     private JedisPool redisConn = null;
 
+    @Override
+    public void updateArguments(Map<String, List<String>> parsedArgs) {
+    }
+
     //JedisPool should always be used as it is thread safe.
+    @Override
     public void report(String profilerName, Map<String, Object> metrics) {
         ensureJedisConn();
         try {
@@ -38,6 +44,7 @@ public class RedisOutputReporter implements Reporter {
         }
     }
 
+    @Override
     public void close() {
         synchronized (this) {
             redisConn.close();
