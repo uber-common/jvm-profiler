@@ -17,9 +17,6 @@
 package com.uber.profiling;
 
 import com.uber.profiling.reporters.ConsoleOutputReporter;
-import com.uber.profiling.reporters.FileOutputReporter;
-import com.uber.profiling.reporters.InfluxDBOutputReporter;
-import com.uber.profiling.reporters.KafkaOutputReporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassMethodArgument;
@@ -51,12 +48,6 @@ public class Arguments {
     public final static String ARG_DURATION_PROFILING = "durationProfiling";
     public final static String ARG_ARGUMENT_PROFILING = "argumentProfiling";
     
-    public final static String ARG_BROKER_LIST = "brokerList";
-    public final static String ARG_SYNC_MODE = "syncMode";
-    public final static String ARG_TOPIC_PREFIX = "topicPrefix";
-
-    public final static String ARG_OUTPUT_DIR = "outputDir";
-    
     public final static String ARG_IO_PROFILING = "ioProfiling";
 
     public static final long MIN_INTERVAL_MILLIS = 50;
@@ -77,10 +68,6 @@ public class Arguments {
     private long sampleInterval = 0L;
     private String tag;
     private String cluster;
-    private String brokerList;
-    private boolean syncMode;
-    private String topicPrefix;
-    private String outputDir;
     private boolean ioProfiling;
 
     private List<ClassAndMethod> durationProfiling = new ArrayList<>();
@@ -126,32 +113,32 @@ public class Arguments {
     public void updateArguments(Map<String, List<String>> parsedArgs) {
         rawArgValues.putAll(parsedArgs);
 
-        String argValue = getArgumentSingleValue(parsedArgs, ARG_NOOP);
-        if (needToUpdateArg(argValue)) {
+        String argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_NOOP);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             noop = Boolean.parseBoolean(argValue);
             logger.info("Got argument value for noop: " + noop);
         }
         
-        argValue = getArgumentSingleValue(parsedArgs, ARG_REPORTER);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_REPORTER);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             reporterConstructor = ReflectionUtils.getConstructor(argValue, Reporter.class);
             logger.info("Got argument value for reporter: " + argValue);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_PROVIDER);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_CONFIG_PROVIDER);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             configProviderConstructor = ReflectionUtils.getConstructor(argValue, ConfigProvider.class);
             logger.info("Got argument value for configProvider: " + argValue);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_CONFIG_FILE);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_CONFIG_FILE);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             configFile = argValue;
             logger.info("Got argument value for configFile: " + configFile);
         }
         
-        argValue = getArgumentSingleValue(parsedArgs, ARG_METRIC_INTERVAL);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_METRIC_INTERVAL);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             metricInterval = Long.parseLong(argValue);
             logger.info("Got argument value for metricInterval: " + metricInterval);
         }
@@ -160,8 +147,8 @@ public class Arguments {
             throw new RuntimeException("Metric interval too short, must be at least " + Arguments.MIN_INTERVAL_MILLIS);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_SAMPLE_INTERVAL);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_SAMPLE_INTERVAL);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             sampleInterval = Long.parseLong(argValue);
             logger.info("Got argument value for sampleInterval: " + sampleInterval);
         }
@@ -170,31 +157,31 @@ public class Arguments {
             throw new RuntimeException("Sample interval too short, must be 0 (disable sampling) or at least " + Arguments.MIN_INTERVAL_MILLIS);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_TAG);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_TAG);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             tag = argValue;
             logger.info("Got argument value for tag: " + tag);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_CLUSTER);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_CLUSTER);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             cluster = argValue;
             logger.info("Got argument value for cluster: " + cluster);
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_VARIABLE);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_APP_ID_VARIABLE);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             appIdVariable = argValue;
             logger.info("Got argument value for appIdVariable: " + appIdVariable);
         }
         
-        argValue = getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_APP_ID_REGEX);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             appIdRegex = argValue;
             logger.info("Got argument value for appIdRegex: " + appIdRegex);
         }
 
-        List<String> argValues = getArgumentMultiValues(parsedArgs, ARG_DURATION_PROFILING);
+        List<String> argValues = ArgumentUtils.getArgumentMultiValues(parsedArgs, ARG_DURATION_PROFILING);
         if (!argValues.isEmpty()) {
             durationProfiling.clear();
             for (String str : argValues) {
@@ -210,7 +197,7 @@ public class Arguments {
             }
         }
 
-        argValues = getArgumentMultiValues(parsedArgs, ARG_ARGUMENT_PROFILING);
+        argValues = ArgumentUtils.getArgumentMultiValues(parsedArgs, ARG_ARGUMENT_PROFILING);
         if (!argValues.isEmpty()) {
             argumentProfiling.clear();
             for (String str : argValues) {
@@ -234,32 +221,8 @@ public class Arguments {
             }
         }
 
-        argValue = getArgumentSingleValue(parsedArgs, ARG_BROKER_LIST);
-        if (needToUpdateArg(argValue)) {
-            brokerList = argValue;
-            logger.info("Got argument value for brokerList: " + brokerList);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_SYNC_MODE);
-        if (needToUpdateArg(argValue)) {
-            syncMode = Boolean.parseBoolean(argValue);
-            logger.info("Got argument value for syncMode: " + syncMode);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_TOPIC_PREFIX);
-        if (needToUpdateArg(argValue)) {
-            topicPrefix = argValue;
-            logger.info("Got argument value for topicPrefix: " + topicPrefix);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
-        if (needToUpdateArg(argValue)) {
-            outputDir = argValue;
-            logger.info("Got argument value for outputDir: " + outputDir);
-        }
-
-        argValue = getArgumentSingleValue(parsedArgs, ARG_IO_PROFILING);
-        if (needToUpdateArg(argValue)) {
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_IO_PROFILING);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
             ioProfiling = Boolean.parseBoolean(argValue);
             logger.info("Got argument value for ioProfiling: " + ioProfiling);
         }
@@ -302,24 +265,7 @@ public class Arguments {
         } else {
             try {
                 Reporter reporter = reporterConstructor.newInstance();
-                if (reporter instanceof KafkaOutputReporter) {
-                    KafkaOutputReporter kafkaOutputReporter = (KafkaOutputReporter)reporter;
-                    if (brokerList != null && !brokerList.isEmpty()) {
-                        kafkaOutputReporter.setBrokerList(brokerList);
-                    }
-                    kafkaOutputReporter.setSyncMode(syncMode);
-                    if (topicPrefix != null && !topicPrefix.isEmpty()) {
-                        kafkaOutputReporter.setTopicPrefix(topicPrefix);
-                    }
-                } else if (reporter instanceof FileOutputReporter) {
-                    FileOutputReporter fileOutputReporter = (FileOutputReporter)reporter;
-                    fileOutputReporter.setDirectory(outputDir);
-                }else if (reporter instanceof InfluxDBOutputReporter) {
-                    InfluxDBOutputReporter influxDBOutputReporter = (InfluxDBOutputReporter)reporter;
-                    if(!rawArgValues.isEmpty()){
-                        influxDBOutputReporter.setProperties(rawArgValues);
-                    }
-                }
+                reporter.updateArguments(getRawArgValues());
                 return reporter;
             } catch (Throwable e) {
                 throw new RuntimeException(String.format("Failed to create reporter instance %s", reporterConstructor.getDeclaringClass()), e);
@@ -395,40 +341,8 @@ public class Arguments {
         return argumentProfiling;
     }
 
-    public String getBrokerList() {
-        return brokerList;
-    }
-
-    public boolean isSyncMode() {
-        return syncMode;
-    }
-
     public boolean isIoProfiling() {
         return ioProfiling;
     }
 
-    private String getArgumentSingleValue(Map<String, List<String>> parsedArgs, String argName) {
-        List<String> list = parsedArgs.get(argName);
-        if (list == null) {
-            return null;
-        }
-
-        if (list.isEmpty()) {
-            return "";
-        }
-
-        return list.get(list.size() - 1);
-    }
-
-    private List<String> getArgumentMultiValues(Map<String, List<String>> parsedArgs, String argName) {
-        List<String> list = parsedArgs.get(argName);
-        if (list == null) {
-            return new ArrayList<>();
-        }
-        return list;
-    }
-    
-    private boolean needToUpdateArg(String argValue) {
-        return argValue != null && !argValue.isEmpty();
-    }
 }

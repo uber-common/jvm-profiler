@@ -5,7 +5,7 @@
     <groupId>com.uber</groupId>
     <artifactId>jvm-profiler</artifactId>
     <!-- Please update AgentImpl.VERSION as well for same version -->
-    <version>0.0.9</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>uber-jvm-profiler</name>
@@ -72,14 +72,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.9.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
         <!--Test-->
@@ -293,4 +285,40 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>redis</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/main/java_redis</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>redis.clients</groupId>
+                    <artifactId>jedis</artifactId>
+                    <version>2.9.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
