@@ -19,7 +19,7 @@ import com.uber.profiling.util.AgentLogger;
 /**
  * Metrics reporter class for InfluxDB. Database name "metrics" is used by this
  * reporter. Create "metrics" database in InfluxDB before using this reporter.
- * If you want to use different database name then update value of "database"
+ * If you want to use different database name then update the value of "database"
  * property in this class.
  * 
  * Check the "host" and "port" properties for InfluxDB and update accordingly.
@@ -57,13 +57,14 @@ public class InfluxDBOutputReporter implements Reporter {
 
     @Override
     public void report(String profilerName, Map<String, Object> metrics) {
+        // get DB connection
+        ensureInfluxDBCon();
+        // format metrics 
         logger.info("Profiler Name : " + profilerName);
         Map<String, Object> formattedMetrics = getFormattedMetrics(metrics);
         for (Map.Entry<String, Object> entry : formattedMetrics.entrySet()) {
             logger.info("Formatted Metric-Name = " + entry.getKey() + ", Metric-Value = " + entry.getValue());
         }
-        // get DB connection
-        ensureInfluxDBCon();
         // Point
         Point point = Point.measurement(profilerName)
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
@@ -157,21 +158,27 @@ public class InfluxDBOutputReporter implements Reporter {
     }
 
     // properties from yaml file
-    public void setProperties(Map<String, List<String>> connectionProperties) {
+    @Override
+    public void updateArguments(Map<String, List<String>> connectionProperties) {
         for (Map.Entry<String,  List<String>> entry : connectionProperties.entrySet()) {
             String key = entry.getKey();
             List<String> value = entry.getValue();
             if (StringUtils.isNotEmpty(key) && value != null && !value.isEmpty()) {
                 String stringValue = value.get(0);
                 if (key.equals("influxdb.host")) {
+                    logger.info("Got value for host = "+stringValue);
                     this.host = stringValue;
                 } else if (key.equals("influxdb.port")) {
+                    logger.info("Got value for port = "+stringValue);
                     this.port = stringValue;
                 } else if (key.equals("influxdb.database")) {
+                    logger.info("Got value for database = "+stringValue);
                     this.database = stringValue;
                 } else if (key.equals("influxdb.username")) {
+                    logger.info("Got value for username = "+stringValue);
                     this.username = stringValue;
                 } else if (key.equals("influxdb.password")) {
+                    logger.info("Got value for password = "+stringValue);
                     this.password = stringValue;
                 }
             }
