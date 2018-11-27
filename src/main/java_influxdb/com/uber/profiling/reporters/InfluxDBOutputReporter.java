@@ -30,7 +30,6 @@ import com.uber.profiling.util.AgentLogger;
  * You can also pass database connection properties from yaml file and those
  * properties will be used by this reporter.
  * 
- * 
  * To uses InfluxDBOutputReporter with default database connection properties
  * pass it in command.
  * 
