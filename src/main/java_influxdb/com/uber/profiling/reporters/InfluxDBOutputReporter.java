@@ -36,12 +36,9 @@ import com.uber.profiling.util.AgentLogger;
  * 
  *     reporter=com.uber.profiling.reporters.InfluxDBOutputReporter
  * 
- * To use database connection properties from yaml file use below command. check
- * sample file at "resources/influxdb.yml".
+ * To use database connection properties from yaml file use below command. 
  * 
  *     reporter=com.uber.profiling.reporters.InfluxDBOutputReporter,configProvider=com.uber.profiling.YamlConfigProvider,configFile=/opt/influxdb.yaml
- *  
- * @author abaghel
  *
  */
 public class InfluxDBOutputReporter implements Reporter {
