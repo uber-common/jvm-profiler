@@ -81,6 +81,7 @@
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+        
     </dependencies>
 
     <build>
@@ -222,6 +223,10 @@
                                     <shadedPattern>ujagent_shaded.redis.clients</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>org.influxdb</pattern>
+                                    <shadedPattern>ujagent_shaded.org.influxdb</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>ch</pattern>
                                     <shadedPattern>ujagent_shaded.ch</shadedPattern>
                                 </relocation>
@@ -307,6 +312,39 @@
                     <groupId>redis.clients</groupId>
                     <artifactId>jedis</artifactId>
                     <version>2.9.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+		<profile>
+            <id>influxdb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/main/java_influxdb</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.influxdb</groupId>
+                    <artifactId>influxdb-java</artifactId>
+                    <version>2.14</version>
                 </dependency>
             </dependencies>
         </profile>
