@@ -1,5 +1,7 @@
 # Uber JVM Profiler
 
+[![Build Status](https://api.travis-ci.org/uber-common/jvm-profiler.svg)](https://travis-ci.org/uber-common/jvm-profiler/)
+
 Uber JVM Profiler provides a Java Agent to collect various metrics and stacktraces for Hadoop/Spark JVM processes 
 in a distributed way, for example, CPU/Memory/IO metrics. 
 
@@ -15,13 +17,15 @@ processes/machines. It is also a generic Java Agent and could be used for any JV
 ## How to Build
 
 1. Make sure JDK 8+ and maven is installed on your machine.
-2. Run: mvn clean package
+2. Run: `mvn clean package`
+
+This command creates **jvm-profiler.jar** file with the default reporters like ConsoleOutputReporter, FileOutputReporter and KafkaOutputReporter bundled in it. If you want to bundle the custom reporters like RedisOutputReporter or InfluxDBOutputReporter in the jar file then provide the maven profile id for that reporter in the build command. For example to build a jar file with RedisOutputReporter, you can execute `mvn -P redis clean package` command. Please check the pom.xml file for available custom reporters and their profile ids. 
 
 ## Example to Run
 
 Following command will start the example application with the profiler agent attached, which will report metrics to the console output:
 ```
-java -javaagent:target/jvm-profiler-0.0.9.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-0.0.9.jar com.uber.profiling.examples.HelloWorldApplication
+java -javaagent:target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-1.0.0.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 
 ## Example to Run with Spark Application
@@ -29,8 +33,8 @@ java -javaagent:target/jvm-profiler-0.0.9.jar=reporter=com.uber.profiling.report
 You could upload jvm-profiler jar file to HDFS so the Spark application executors could access it. Then add configuration like following when launching Spark application:
 
 ```
---conf spark.jars=hdfs://hdfs_url/lib/jvm-profiler-0.0.9.jar
---conf spark.executor.extraJavaOptions=-javaagent:jvm-profiler-0.0.9.jar
+--conf spark.jars=hdfs://hdfs_url/lib/jvm-profiler-1.0.0.jar
+--conf spark.executor.extraJavaOptions=-javaagent:jvm-profiler-1.0.0.jar
 ```
 
 ## Send Metrics to Kafka
@@ -38,7 +42,7 @@ You could upload jvm-profiler jar file to HDFS so the Spark application executor
 Uber JVM Profiler supports sending metrics to Kafka. For example,
 
 ```
-java -javaagent:target/jvm-profiler-0.0.9.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-0.0.9.jar com.uber.profiling.examples.HelloWorldApplication
+java -javaagent:target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.KafkaOutputReporter,metricInterval=5000,brokerList=localhost:9092,topicPrefix=profiler_ -cp target/jvm-profiler-1.0.0.jar com.uber.profiling.examples.HelloWorldApplication
 ```
 It will send metrics to Kafka topic profiler_CpuAndMemory. See bottom of this document for an example of the metrics.
 
