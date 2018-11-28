@@ -19,7 +19,7 @@ processes/machines. It is also a generic Java Agent and could be used for any JV
 1. Make sure JDK 8+ and maven is installed on your machine.
 2. Run: `mvn clean package`
 
-This command creates **jvm-profiler-1.0.0.jar** file with the default reporters like ConsoleOutputReporter, FileOutputReporter and KafkaOutputReporter bundled in it. If you want to bundle the custom reporters like RedisOutputReporter or InfluxDBOutputReporter in the jar file then provide the maven profile id for that reporter in the build command. For example to build a jar file with RedisOutputReporter, you can execute `mvn -P redis clean package` command. Please check the pom.xml file for available custom reporters and their profile ids. 
+This command creates **jvm-profiler.jar** file with the default reporters like ConsoleOutputReporter, FileOutputReporter and KafkaOutputReporter bundled in it. If you want to bundle the custom reporters like RedisOutputReporter or InfluxDBOutputReporter in the jar file then provide the maven profile id for that reporter in the build command. For example to build a jar file with RedisOutputReporter, you can execute `mvn -P redis clean package` command. Please check the pom.xml file for available custom reporters and their profile ids. 
 
 ## Example to Run
 
