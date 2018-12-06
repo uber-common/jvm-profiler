@@ -230,6 +230,10 @@
                                     <pattern>ch</pattern>
                                     <shadedPattern>ujagent_shaded.ch</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>okio</pattern>
+                                    <shadedPattern>ujagent_shaded.okio</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
