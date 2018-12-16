@@ -21,13 +21,6 @@ processes/machines. It is also a generic Java Agent and could be used for any JV
 
 This command creates **jvm-profiler.jar** file with the default reporters like ConsoleOutputReporter, FileOutputReporter and KafkaOutputReporter bundled in it. If you want to bundle the custom reporters like RedisOutputReporter or InfluxDBOutputReporter in the jar file then provide the maven profile id for that reporter in the build command. For example to build a jar file with RedisOutputReporter, you can execute `mvn -P redis clean package` command. Please check the pom.xml file for available custom reporters and their profile ids. 
 
-## Example to Run
-
-Following command will start the example application with the profiler agent attached, which will report metrics to the console output:
-```
-java -javaagent:target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-1.0.0.jar com.uber.profiling.examples.HelloWorldApplication
-```
-
 ## Example to Run with Spark Application
 
 You could upload jvm-profiler jar file to HDFS so the Spark application executors could access it. Then add configuration like following when launching Spark application:
@@ -35,6 +28,34 @@ You could upload jvm-profiler jar file to HDFS so the Spark application executor
 ```
 --conf spark.jars=hdfs://hdfs_url/lib/jvm-profiler-1.0.0.jar
 --conf spark.executor.extraJavaOptions=-javaagent:jvm-profiler-1.0.0.jar
+```
+
+## Example to Run with Java Application
+
+Following command will start the example application with the profiler agent attached, which will report metrics to the console output:
+```
+java -javaagent:target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,tag=mytag,metricInterval=5000,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1,sampleInterval=100 -cp target/jvm-profiler-1.0.0.jar com.uber.profiling.examples.HelloWorldApplication
+```
+
+## Example to Run with Executable Jar
+
+Use following command to run jvm profiler with executable jar application.
+```
+java -javaagent:/opt/jvm-profiler/target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,metricInterval=5000,durationProfiling=foo.bar.FooAppication.barMethod,sampleInterval=5000 -jar foo-application.jar
+```
+
+## Example to Run with Tomcat
+
+Set the jvm profiler in CATALINA_OPTS before starting the tomcat server. Check logs/catalina.out file for metrics.
+```
+export CATALINA_OPTS="$CATALINA_OPTS -javaagent:/opt/jvm-profiler/target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,metricInterval=5000,durationProfiling=foo.bar.FooController.barMethod,sampleInterval=5000"
+```
+
+## Example to Run with Spring Boot Maven Plugin
+
+Use following command to use jvm profiler with Spring Boot 2.x. For Spring Boot 1.x use `-Drun.arguments` instead of `-Dspring-boot.run.jvmArguments` in following command.
+```
+mvn spring-boot:run -Dspring-boot.run.jvmArguments="-javaagent:/opt/jvm-profiler/target/jvm-profiler-1.0.0.jar=reporter=com.uber.profiling.reporters.ConsoleOutputReporter,metricInterval=5000,durationProfiling=foo.bar.FooController.barMethod,sampleInterval=5000"
 ```
 
 ## Send Metrics to Kafka
