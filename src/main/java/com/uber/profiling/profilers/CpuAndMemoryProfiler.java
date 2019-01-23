@@ -105,18 +105,22 @@ public class CpuAndMemoryProfiler extends ProcessInfoBase implements Profiler {
 
         Double heapMemoryTotalUsed = null;
         Double heapMemoryCommitted = null;
+        Double heapMemoryMax = null;
 
         Double nonHeapMemoryTotalUsed = null;
         Double nonHeapMemoryCommitted = null;
+        Double nonHeapMemoryMax = null;
         
         if (memoryMXBean != null) {
             MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage();
             heapMemoryTotalUsed = new Double(memoryUsage.getUsed());
             heapMemoryCommitted = new Double(memoryUsage.getCommitted());
+            heapMemoryMax = new Double(memoryUsage.getMax());
 
             memoryUsage = memoryMXBean.getNonHeapMemoryUsage();
             nonHeapMemoryTotalUsed = new Double(memoryUsage.getUsed());
             nonHeapMemoryCommitted = new Double(memoryUsage.getCommitted());
+            nonHeapMemoryMax = new Double(memoryUsage.getMax());
         }
 
         List<Map<String, Object>> gcMetrics = new ArrayList<>();
@@ -198,9 +202,11 @@ public class CpuAndMemoryProfiler extends ProcessInfoBase implements Profiler {
 
         map.put("heapMemoryTotalUsed", heapMemoryTotalUsed);
         map.put("heapMemoryCommitted", heapMemoryCommitted);
+        map.put("heapMemoryMax", heapMemoryMax);
 
         map.put("nonHeapMemoryTotalUsed", nonHeapMemoryTotalUsed);
         map.put("nonHeapMemoryCommitted", nonHeapMemoryCommitted);
+        map.put("nonHeapMemoryMax", nonHeapMemoryMax);
 
         map.put("gc", gcMetrics);
 
