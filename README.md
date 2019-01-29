@@ -233,3 +233,5 @@ We can take the output of Stacktrack Profiling to generate flamegraph to visuali
 python stackcollapse.py -i Stacktrace.json > Stacktrace.folded
 flamegraph.pl Stacktrace.folded > Stacktrace.svg
 ```
+
+Note that it is required to enable stacktrace sampling, in order to generate flamegraph. To enable it, please set `sampleInterval` parameter. If it is not set or zero, the profiler will not do stacktrace sampling.
