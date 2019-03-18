@@ -80,6 +80,10 @@ public class DatadogOutputReporter implements Reporter {
             List<String> value = entry.getValue();
             if (StringUtils.isNotEmpty(key) && value != null && !value.isEmpty()) {
                 String stringValue = value.get(0);
+                if (StringUtils.isBlank(stringValue)) {
+                    break;
+                }
+
                 switch (key) {
                   case "datadog.statsd.prefix":
                     logger.info("Got value for prefix = " + stringValue);
