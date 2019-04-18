@@ -16,7 +16,6 @@
 
 package com.uber.profiling.profilers;
 
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethodMetricKey;
@@ -26,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MethodArgumentProfiler extends ProfilerBase implements Profiler {
+public class MethodArgumentProfiler extends ProfilerBase {
     public static final String PROFILER_NAME = "MethodArgument";
 
     private ClassMethodArgumentMetricBuffer buffer;

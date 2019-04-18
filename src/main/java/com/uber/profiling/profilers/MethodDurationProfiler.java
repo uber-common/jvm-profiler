@@ -16,7 +16,6 @@
 
 package com.uber.profiling.profilers;
 
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
@@ -26,7 +25,7 @@ import com.uber.profiling.util.Histogram;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MethodDurationProfiler extends ProfilerBase implements Profiler {
+public class MethodDurationProfiler extends ProfilerBase {
     public static final String PROFILER_NAME = "MethodDuration";
 
     private ClassAndMethodLongMetricBuffer buffer;

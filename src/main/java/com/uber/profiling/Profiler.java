@@ -16,10 +16,45 @@
 
 package com.uber.profiling;
 
-public interface Profiler {
-    long getIntervalMillis();
+import com.uber.profiling.util.AgentLogger;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicLong;
 
-    void setReporter(Reporter reporter);
+public abstract class Profiler implements Runnable {
 
-    void profile();
+  private static final AgentLogger logger = AgentLogger.getLogger(Profiler.class.getName());
+  private static final int MAX_ERROR_COUNT_TO_LOG = 100;
+
+  private final AtomicLong errorCounter = new AtomicLong(0);
+  private ScheduledFuture<?> scheduleHandler;
+
+  public abstract long getIntervalMillis();
+
+  public abstract void setIntervalMillis(long millis);
+
+  public abstract void setReporter(Reporter reporter);
+
+  public abstract void profile();
+
+  @Override
+  public void run() {
+    try {
+      this.profile();
+    } catch (Throwable e) {
+      long errorCountValue = errorCounter.incrementAndGet();
+      if (errorCountValue <= MAX_ERROR_COUNT_TO_LOG) {
+        logger.warn("Failed to run profile: " + this, e);
+      } else {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public ScheduledFuture<?> getScheduleHandler() {
+    return scheduleHandler;
+  }
+
+  public void setScheduleHandler(ScheduledFuture<?> handler) {
+    this.scheduleHandler = handler;
+  }
 }

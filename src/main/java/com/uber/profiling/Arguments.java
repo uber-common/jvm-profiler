@@ -23,7 +23,6 @@ import com.uber.profiling.util.ClassMethodArgument;
 import com.uber.profiling.util.DummyConfigProvider;
 import com.uber.profiling.util.JsonUtils;
 import com.uber.profiling.util.ReflectionUtils;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +58,7 @@ public class Arguments {
     private boolean noop = false;
     
     private Constructor<Reporter> reporterConstructor;
+    private Reporter reporter;
     private Constructor<ConfigProvider> configProviderConstructor;
     private String configFile;
 
@@ -260,11 +260,14 @@ public class Arguments {
     }
 
     public Reporter getReporter() {
+        if (reporter != null) {
+            return reporter;
+        }
         if (reporterConstructor == null) {
             return new ConsoleOutputReporter();
         } else {
             try {
-                Reporter reporter = reporterConstructor.newInstance();
+                reporter = reporterConstructor.newInstance();
                 reporter.updateArguments(getRawArgValues());
                 return reporter;
             } catch (Throwable e) {

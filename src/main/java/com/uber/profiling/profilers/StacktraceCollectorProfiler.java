@@ -31,7 +31,8 @@ import java.util.List;
 /**
  * This class collects stacktraces by getting thread dump via JMX, and stores the stacktraces into the given buffer.
  */
-public class StacktraceCollectorProfiler implements Profiler {
+public class StacktraceCollectorProfiler extends Profiler {
+    public static final String PROFILER_NAME = "StacktraceCollector";
     private long intervalMillis;
     private StacktraceMetricBuffer buffer;
     private String ignoreThreadNamePrefix = "";
@@ -63,6 +64,9 @@ public class StacktraceCollectorProfiler implements Profiler {
 
     @Override
     public void profile() {
+        if (getIntervalMillis() <=0){
+            return;
+        }
         ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
         if (threadInfos == null) {
             return;

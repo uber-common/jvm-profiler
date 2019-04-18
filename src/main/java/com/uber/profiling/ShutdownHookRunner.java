@@ -42,6 +42,10 @@ public class ShutdownHookRunner implements Runnable {
         
         for (Profiler profiler : profilers) {
             try {
+                if (profiler.getIntervalMillis() <=0 ){
+                    //one time profiler, skip
+                    continue;
+                }
                 logShutdownMessage("Running periodic profiler (last run): " + profiler);
                 profiler.profile();
                 logShutdownMessage("Ran periodic profiler (last run): " + profiler);

@@ -21,15 +21,19 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ProfilerRunnableTest {
+public class ProfilerTest {
     @Test
     public void invokeRunnable() {
         final AtomicInteger i = new AtomicInteger(10);
 
-        ProfilerRunner profilerRunnable = new ProfilerRunner(new Profiler() {
+        Profiler profilerRunnable = new Profiler() {
             @Override
             public long getIntervalMillis() {
                 return 0;
+            }
+
+            @Override
+            public void setIntervalMillis(long millis) {
             }
 
             @Override
@@ -40,7 +44,7 @@ public class ProfilerRunnableTest {
             public void profile() {
                 i.incrementAndGet();
             }
-        });
+        };
 
         profilerRunnable.run();
 

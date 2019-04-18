@@ -16,7 +16,6 @@
 
 package com.uber.profiling.profilers;
 
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.ProcFileUtils;
 
@@ -24,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class IOProfiler extends ProfilerBase implements Profiler {
+public class IOProfiler extends ProfilerBase {
     public final static String PROFILER_NAME = "IO";
 
     private long intervalMillis = Constants.DEFAULT_METRIC_INTERVAL;

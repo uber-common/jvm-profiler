@@ -16,6 +16,7 @@
 
 package com.uber.profiling;
 
+import java.lang.reflect.Field;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,9 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AgentITCase {
@@ -252,6 +251,82 @@ public class AgentITCase {
         System.out.println(jsonProcessInfo);
         Assert.assertTrue(jsonProcessInfo.contains("TEST_APP_ID_123_ABC"));
     }
+
+    @Test
+    public void runAgent_updateAgentParametersAfterStart() throws InterruptedException, IOException {
+        String javaHome = System.getProperty("java.home");
+        System.out.println(javaHome);
+        String javaBin = Paths.get(javaHome, "bin/java").toAbsolutePath().toString();
+
+        String agentJar = getAgentJarPath();
+
+        String outputDir = Files.createTempDirectory("jvm_profiler_test_output").toString();
+        System.out.println("outputDir: " + outputDir);
+
+        ProcessBuilder pb = new ProcessBuilder(
+            javaBin,
+            "-cp",
+            agentJar,
+            "-javaagent:" + agentJar + "=configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=200,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.0",
+            "com.uber.profiling.examples.HelloWorldApplication",
+            "2000"
+        );
+
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+
+        // update the agent params using com.uber.profiling.tools.AttachClient
+        long pid = tryGetPid(process);
+        Assert.assertTrue(pid > 0);
+
+        ProcessBuilder ac = new ProcessBuilder(
+            javaBin,
+            "-cp",
+            String.format("%s:%s/../lib/tools.jar", agentJar, javaHome),
+            "com.uber.profiling.tools.AttachClient",
+            agentJar,
+            "configProvider=com.uber.profiling.util.DummyConfigProvider,reporter=com.uber.profiling.reporters.FileOutputReporter,outputDir=" + outputDir + ",tag=mytag,metricInterval=300,durationProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod,argumentProfiling=com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.0",
+            String.valueOf(pid)
+        );
+        ac.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        ac.redirectError(ProcessBuilder.Redirect.INHERIT);
+        Process attachClientProcess = ac.start();
+        attachClientProcess.waitFor();
+
+        process.waitFor();
+
+        File[] files = new File(outputDir).listFiles();
+        Assert.assertEquals(4, files.length);
+
+        List<String> fileNames = Arrays.asList(files).stream().map(t->t.getName()).sorted().collect(Collectors.toList());
+
+        Assert.assertEquals("CpuAndMemory.json", fileNames.get(0));
+        String jsonCpuAndMemory = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(0))));
+        System.out.println("-----CpuAndMemory-----");
+        System.out.println(jsonCpuAndMemory);
+        Assert.assertTrue(jsonCpuAndMemory.contains("bufferPool"));
+
+        Assert.assertEquals("MethodArgument.json", fileNames.get(1));
+        String jsonMethodArgument = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(1))));
+        System.out.println("-----MethodArgument-----");
+        System.out.println(jsonMethodArgument);
+        Assert.assertTrue(jsonMethodArgument.contains("arg.0"));
+
+        Assert.assertEquals("MethodDuration.json", fileNames.get(2));
+        String jsonMethodDuration = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(2))));
+        System.out.println("-----MethodDuration-----");
+        System.out.println(jsonMethodDuration);
+        Assert.assertTrue(jsonMethodDuration.contains("duration.sum"));
+
+        Assert.assertEquals("ProcessInfo.json", fileNames.get(3));
+        String jsonProcessInfo = new String(Files.readAllBytes(Paths.get(outputDir, fileNames.get(3))));
+        System.out.println("-----ProcessInfo-----");
+        System.out.println(jsonProcessInfo);
+        Assert.assertTrue(jsonProcessInfo.contains("jvmClassPath"));
+        Assert.assertTrue(jsonProcessInfo.contains(agentJar));
+    }
     
     private String getAgentJarPath() throws IOException {
         // Find jar file with largest size under target directory, which should be the packaged agent jar file
@@ -268,5 +343,23 @@ public class AgentITCase {
                 .get();
         System.out.println("agentJar: " + agentJar);
         return agentJar;
+    }
+
+    private int tryGetPid(Process process)
+    {
+        if (process.getClass().getName().equals("java.lang.UNIXProcess"))
+        {
+            try
+            {
+                Field f = process.getClass().getDeclaredField("pid");
+                f.setAccessible(true);
+                return f.getInt(process);
+            }
+            catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e)
+            {
+            }
+        }
+
+        return 0;
     }
 }

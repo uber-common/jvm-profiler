@@ -81,7 +81,13 @@
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
-        
+
+        <!-- required for AttachClient build -->
+        <dependency>
+            <groupId>com.github.olivergondza</groupId>
+            <artifactId>maven-jdk-tools-wrapper</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
     <build>

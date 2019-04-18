@@ -16,6 +16,7 @@
 
 package com.uber.profiling.profilers;
 
+import com.uber.profiling.Profiler;
 import com.uber.profiling.util.NetworkUtils;
 import com.uber.profiling.util.ProcFileUtils;
 import com.uber.profiling.util.ProcessUtils;
@@ -23,7 +24,7 @@ import com.uber.profiling.util.SparkUtils;
 
 import java.util.UUID;
 
-public class ProfilerBase {
+public abstract class ProfilerBase extends Profiler {
     private String tag = null;
     private String cluster = null;
     private String hostName = null;
