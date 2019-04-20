@@ -115,6 +115,15 @@ The java agent supports following parameters, which could be used in Java comman
 
 - outputDir: output directory if using com.uber.profiling.reporters.FileOutputReporter. FileOutputReporter will write metrics into this directory.
 
+## YAML Config File
+
+The parameters could be provided as arguments in java command, or in a YAML config file if you use configProvider=com.uber.profiling.YamlConfigProvider. Following is an example of the YAML config file:
+
+```
+reporter: com.uber.profiling.reporters.ConsoleOutputReporter
+metricInterval: 5000
+```
+
 ## Metrics Example
 
 Following is an example of CPU and Memory metrics when using ConsoleOutputReporter or KafkaOutputReporter:
