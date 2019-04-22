@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MethodArgumentProfiler extends ProcessInfoBase implements Profiler {
+public class MethodArgumentProfiler extends ProfilerBase implements Profiler {
     public static final String PROFILER_NAME = "MethodArgument";
 
     private ClassMethodArgumentMetricBuffer buffer;

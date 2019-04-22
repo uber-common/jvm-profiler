@@ -22,7 +22,7 @@ import com.uber.profiling.profilers.MethodArgumentCollector;
 import com.uber.profiling.profilers.MethodArgumentProfiler;
 import com.uber.profiling.profilers.MethodDurationCollector;
 import com.uber.profiling.profilers.MethodDurationProfiler;
-import com.uber.profiling.profilers.ProcessInfoProfiler;
+import com.uber.profiling.profilers.ProfilerProfiler;
 import com.uber.profiling.profilers.StacktraceCollectorProfiler;
 import com.uber.profiling.profilers.StacktraceReporterProfiler;
 import com.uber.profiling.transformers.JavaAgentFileTransformer;
@@ -30,7 +30,6 @@ import com.uber.profiling.transformers.MethodProfilerStaticProxy;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
-import com.uber.profiling.util.JsonUtils;
 import com.uber.profiling.util.SparkUtils;
 import com.uber.profiling.util.StacktraceMetricBuffer;
 
@@ -39,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -147,7 +145,7 @@ public class AgentImpl {
 
         profilers.add(cpuAndMemoryProfiler);
 
-        ProcessInfoProfiler processInfoProfiler = new ProcessInfoProfiler(reporter);
+        ProfilerProfiler processInfoProfiler = new ProfilerProfiler(reporter);
         processInfoProfiler.setTag(tag);
         processInfoProfiler.setCluster(cluster);
         processInfoProfiler.setProcessUuid(processUuid);

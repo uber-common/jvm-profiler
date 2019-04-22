@@ -30,10 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
+public class ProfilerProfiler extends ProfilerBase implements Profiler {
     public final static String PROFILER_NAME = "ProcessInfo";
 
-    private static final AgentLogger logger = AgentLogger.getLogger(ProcessInfoProfiler.class.getName());
+    private static final AgentLogger logger = AgentLogger.getLogger(ProfilerProfiler.class.getName());
 
     private String jvmInputArguments = "";
     private String jvmClassPath = "";
@@ -42,7 +42,7 @@ public class ProcessInfoProfiler extends ProcessInfoBase implements Profiler {
 
     private Reporter reporter;
 
-    public ProcessInfoProfiler(Reporter reporter) {
+    public ProfilerProfiler(Reporter reporter) {
         setReporter(reporter);
 
         init();

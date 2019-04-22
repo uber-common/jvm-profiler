@@ -23,7 +23,7 @@ import com.uber.profiling.util.SparkUtils;
 
 import java.util.UUID;
 
-public class ProcessInfoBase {
+public class ProfilerBase {
     private String tag = null;
     private String cluster = null;
     private String hostName = null;
@@ -35,7 +35,7 @@ public class ProcessInfoBase {
 
     private String role = null;
     
-    public ProcessInfoBase() {
+    public ProfilerBase() {
         setHostName(NetworkUtils.getLocalHostName());
         setProcessName(ProcessUtils.getCurrentProcessName());
     }
