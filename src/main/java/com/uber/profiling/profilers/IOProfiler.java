@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class IOProfiler extends ProcessInfoBase implements Profiler {
+public class IOProfiler extends ProfilerBase implements Profiler {
     public final static String PROFILER_NAME = "IO";
 
     private long intervalMillis = Constants.DEFAULT_METRIC_INTERVAL;

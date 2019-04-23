@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CpuAndMemoryProfiler extends ProcessInfoBase implements Profiler {
+public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
     public final static String PROFILER_NAME = "CpuAndMemory";
 
     private static final AgentLogger logger = AgentLogger.getLogger(CpuAndMemoryProfiler.class.getName());

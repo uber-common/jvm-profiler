@@ -30,7 +30,6 @@ import com.uber.profiling.transformers.MethodProfilerStaticProxy;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
-import com.uber.profiling.util.JsonUtils;
 import com.uber.profiling.util.SparkUtils;
 import com.uber.profiling.util.StacktraceMetricBuffer;
 
@@ -39,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

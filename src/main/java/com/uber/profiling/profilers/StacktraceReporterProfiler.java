@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * This class reads the stacktraces from the given buffer and send out via given reporter.
  */
-public class StacktraceReporterProfiler extends ProcessInfoBase implements Profiler {
+public class StacktraceReporterProfiler extends ProfilerBase implements Profiler {
     public static final String PROFILER_NAME = "Stacktrace";
 
     private StacktraceMetricBuffer buffer;

@@ -26,7 +26,7 @@ import com.uber.profiling.util.Histogram;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MethodDurationProfiler extends ProcessInfoBase implements Profiler {
+public class MethodDurationProfiler extends ProfilerBase implements Profiler {
     public static final String PROFILER_NAME = "MethodDuration";
 
     private ClassAndMethodLongMetricBuffer buffer;
