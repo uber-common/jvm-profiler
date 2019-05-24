@@ -50,8 +50,14 @@ public abstract class Profiler implements Runnable {
     }
   }
 
-  public ScheduledFuture<?> getScheduleHandler() {
-    return scheduleHandler;
+  public boolean isRunning() {
+    return scheduleHandler != null;
+  }
+
+  public void cancel() {
+    if (isRunning()) {
+      scheduleHandler.cancel(false);
+    }
   }
 
   public void setScheduleHandler(ScheduledFuture<?> handler) {

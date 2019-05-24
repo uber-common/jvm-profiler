@@ -237,9 +237,9 @@ public class AgentImpl {
         }
 
         for (Profiler profiler : profilers.values()) {
-            if (profiler.getScheduleHandler() != null) {
+            if (profiler.isRunning()) {
                 //cancel previous task if already scheduled
-                profiler.getScheduleHandler().cancel(false);
+                profiler.cancel();
             }
             if (profiler.getIntervalMillis() <= 0){
                 //one time profiler, don't schedule
