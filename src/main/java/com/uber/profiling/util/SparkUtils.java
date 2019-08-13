@@ -59,7 +59,7 @@ public class SparkUtils {
         try {
             Object result = ReflectionUtils.executeStaticMethods(
                     className, 
-                    "get.conf.getSparkEnvAppId");
+                    "get.conf.getAppId");
             if (result == null) {
                 return null;
             }
