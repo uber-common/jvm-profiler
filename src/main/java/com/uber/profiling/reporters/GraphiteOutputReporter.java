@@ -51,7 +51,9 @@ public class GraphiteOutputReporter implements Reporter {
         .replaceAll("\\.", "-");
     String host = ((String) metrics.computeIfAbsent("host", v -> "unknown_host"))
         .replaceAll("\\.", "-");
-    String newPrefix = String.join(".",prefix,tag,appId,host);
+    String process = ((String) metrics.computeIfAbsent("processUuid", v -> "unknown_process"))
+        .replaceAll("\\.", "-");
+    String newPrefix = String.join(".", prefix, tag, appId, host, process);
 
     Map<String, Object> formattedMetrics = getFormattedMetrics(metrics);
     long timestamp = System.currentTimeMillis() / 1000;
@@ -59,10 +61,6 @@ public class GraphiteOutputReporter implements Reporter {
       out.printf(
           newPrefix + "." + entry.getKey() + " " + entry.getValue() + " " + timestamp + "%n");
     }
-  }
-
-  private String trimDot(String value) {
-    return value.replaceAll(".","-");
   }
 
   // Format metrics in key=value (line protocol)
@@ -120,9 +118,9 @@ public class GraphiteOutputReporter implements Reporter {
   }
 
   private void ensureGraphiteConnection() {
-    if(socket == null) {
+    if (socket == null) {
       synchronized (this) {
-        if(socket == null) {
+        if (socket == null) {
           try {
             logger.info("connecting to graphite(" + host + ":" + port + ")!");
             socket = new Socket(host, port);
