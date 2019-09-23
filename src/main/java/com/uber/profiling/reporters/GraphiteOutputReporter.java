@@ -17,17 +17,17 @@ import java.util.Map;
  *
  * Check the "host" and "port" properties for Graphite and update accordingly.
  *
- * You can also pass Graphite connection properties from yaml file and those
- * properties will be used by this reporter.
+ * You can also pass Graphite connection properties from yaml file and those properties will be used
+ * by this reporter.
  *
  * To uses GraphiteOutputReporter with properties pass it in command.
  *
- *     reporter=com.uber.profiling.reporters.GraphiteOutputReporter
+ * reporter=com.uber.profiling.reporters.GraphiteOutputReporter
  *
  * To use properties from yaml file use below command.
  *
- *     reporter=com.uber.profiling.reporters.GraphiteOutputReporter,configProvider=com.uber.profiling.YamlConfigProvider,configFile=/opt/graphite.yaml
- *
+ * reporter=com.uber.profiling.reporters.GraphiteOutputReporter,configProvider=com.uber.profiling
+ * .YamlConfigProvider,configFile=/opt/graphite.yaml
  */
 public class GraphiteOutputReporter implements Reporter {
 
@@ -56,6 +56,10 @@ public class GraphiteOutputReporter implements Reporter {
     String newPrefix = String.join(".", prefix, tag, appId, host, process);
 
     Map<String, Object> formattedMetrics = getFormattedMetrics(metrics);
+    formattedMetrics.remove("tag");
+    formattedMetrics.remove("appId");
+    formattedMetrics.remove("host");
+    formattedMetrics.remove("processUuid");
     long timestamp = System.currentTimeMillis() / 1000;
     for (Map.Entry<String, Object> entry : formattedMetrics.entrySet()) {
       out.printf(
@@ -64,57 +68,74 @@ public class GraphiteOutputReporter implements Reporter {
   }
 
   // Format metrics in key=value (line protocol)
-  private Map<String, Object> getFormattedMetrics(Map<String, Object> metrics) {
+  public Map<String, Object> getFormattedMetrics(Map<String, Object> metrics) {
     Map<String, Object> formattedMetrics = new HashMap<>();
     for (Map.Entry<String, Object> entry : metrics.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
       logger.debug("Raw Metric-Name = " + key + ", Metric-Value = " + value);
-      if (value != null && value instanceof List) {
-        List listValue = (List) value;
-        if (!listValue.isEmpty() && listValue.get(0) instanceof String) {
-          List<String> metricList = (List<String>) listValue;
-          formattedMetrics.put(key, String.join(",", metricList));
-        } else if (!listValue.isEmpty() && listValue.get(0) instanceof Map) {
-          List<Map<String, Object>> metricList = (List<Map<String, Object>>) listValue;
-          int num = 1;
-          for (Map<String, Object> metricMap : metricList) {
-            String name = null;
-            if (metricMap.containsKey("name") && metricMap.get("name") != null && metricMap
-                .get("name") instanceof String) {
-              name = (String) metricMap.get("name");
-              name = name.replaceAll("\\s", "");
-            }
-            for (Map.Entry<String, Object> entry1 : metricMap.entrySet()) {
-              if (StringUtils.isNotEmpty(name)) {
-                formattedMetrics.put(key + "." + name + "." + entry1.getKey(), entry1.getValue());
-              } else {
-                formattedMetrics.put(key + "." + entry1.getKey() + "." + num, entry1.getValue());
-              }
-            }
-            num++;
-          }
+      if (value != null) {
+        if (value instanceof List) {
+          List listValue = (List) value;
+          addListMetrics(formattedMetrics, listValue, key);
+        } else if (value instanceof Map) {
+          Map<String, Object> metricMap = (Map<String, Object>) value;
+          addMapMetrics(formattedMetrics, metricMap, key);
+        } else {
+          formattedMetrics.put(key, value);
         }
-      } else if (value != null && value instanceof Map) {
-        Map<String, Object> metricMap = (Map<String, Object>) value;
-        for (Map.Entry<String, Object> entry1 : metricMap.entrySet()) {
-          String key1 = entry1.getKey();
-          Object value1 = entry1.getValue();
-          if (value1 != null && value1 instanceof Map) {
-            Map<String, Object> value2 = (Map<String, Object>) value1;
-            int num = 1;
-            for (Map.Entry<String, Object> entry2 : value2.entrySet()) {
-              formattedMetrics
-                  .put(key + "." + key1 + "." + entry2.getKey() + "." + num, entry2.getValue());
-            }
-            num++;
-          }
-        }
-      } else {
-        formattedMetrics.put(key, value);
       }
     }
     return formattedMetrics;
+  }
+
+  private void addMapMetrics(Map<String, Object> formattedMetrics, Map<String, Object> metricMap,
+      String keyPrefix) {
+    for (Map.Entry<String, Object> entry1 : metricMap.entrySet()) {
+      String key1 = entry1.getKey();
+      Object value1 = entry1.getValue();
+      if (value1 != null) {
+        if (value1 instanceof List) {
+          addListMetrics(formattedMetrics, (List) value1, keyPrefix + "." + key1);
+        } else if (value1 instanceof Map) {
+          addMapMetrics(formattedMetrics, (Map<String, Object>) value1, keyPrefix + "." + key1);
+        } else {
+          formattedMetrics.put(keyPrefix + "." + key1, value1);
+        }
+      }
+    }
+  }
+
+  private void addListMetrics(Map<String, Object> formattedMetrics,
+      List listValue, String keyPrefix) {
+    if (listValue != null && !listValue.isEmpty()) {
+      if (listValue.get(0) instanceof List) {
+        for (int i = 0; i < listValue.size(); i++) {
+          addListMetrics(formattedMetrics, (List) listValue.get(i), keyPrefix + "." + i);
+        }
+      } else if (listValue.get(0) instanceof Map) {
+        for (int i = 0; i < listValue.size(); i++) {
+          Map<String, Object> metricMap = (Map<String, Object>) listValue.get(i);
+          if (metricMap != null) {
+            String name = null;
+            Object nameValue = metricMap.get("name");
+            if (nameValue != null && nameValue instanceof String) {
+              name = ((String) nameValue).replaceAll("\\s", "");
+            }
+
+            if (StringUtils.isNotEmpty(name)) {
+              metricMap.remove("name");
+              addMapMetrics(formattedMetrics, metricMap, keyPrefix + "." + name);
+            } else {
+              addMapMetrics(formattedMetrics, metricMap, keyPrefix + "." + i);
+            }
+          }
+        }
+      } else {
+        List<String> metricList = (List<String>) listValue;
+        formattedMetrics.put(keyPrefix, String.join(",", metricList));
+      }
+    }
   }
 
   private void ensureGraphiteConnection() {
