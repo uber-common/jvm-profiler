@@ -44,7 +44,7 @@ public class GraphiteOutputReporter implements Reporter {
     // get DB connection
     ensureGraphiteConnection();
     // format metrics
-    logger.info("Profiler Name : " + profilerName);
+    logger.debug("Profiler Name : " + profilerName);
     String tag = ((String) metrics.computeIfAbsent("tag", v -> "default_tag"))
         .replaceAll("\\.", "-");
     String appId = ((String) metrics.computeIfAbsent("appId", v -> "default_app"))
