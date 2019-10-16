@@ -59,6 +59,7 @@ public class Arguments {
     private boolean noop = false;
     
     private Constructor<Reporter> reporterConstructor;
+    private Reporter reporter;
     private Constructor<ConfigProvider> configProviderConstructor;
     private String configFile;
 
@@ -260,11 +261,12 @@ public class Arguments {
     }
 
     public Reporter getReporter() {
+        if (reporter != null) return reporter; 
         if (reporterConstructor == null) {
             return new ConsoleOutputReporter();
         } else {
             try {
-                Reporter reporter = reporterConstructor.newInstance();
+                reporter = reporterConstructor.newInstance();
                 reporter.updateArguments(getRawArgValues());
                 return reporter;
             } catch (Throwable e) {
