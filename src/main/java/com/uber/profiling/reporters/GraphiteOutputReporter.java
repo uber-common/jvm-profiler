@@ -62,8 +62,15 @@ public class GraphiteOutputReporter implements Reporter {
     formattedMetrics.remove("processUuid");
     long timestamp = System.currentTimeMillis() / 1000;
     for (Map.Entry<String, Object> entry : formattedMetrics.entrySet()) {
-      out.printf(
-          newPrefix + "." + entry.getKey() + " " + entry.getValue() + " " + timestamp + "%n");
+      try {
+        out.printf(
+            newPrefix + "." + entry.getKey() + " " + entry.getValue() + " " + timestamp + "%n");
+      } catch (Exception e) {
+        logger.warn("Unable to print metrics, newPrefix="+newPrefix
+            +", entry.getKey()= "+ entry.getKey()
+            +", entry.getValue()= "+ entry.getValue()
+            +", timestamp= "+ timestamp);
+      }
     }
   }
 
