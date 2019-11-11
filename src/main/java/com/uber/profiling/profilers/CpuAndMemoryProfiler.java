@@ -171,6 +171,8 @@ public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
         Map<String, String> procStatus = ProcFileUtils.getProcStatus();
         Long procStatusVmRSS = ProcFileUtils.getBytesValue(procStatus, "VmRSS");
         Long procStatusVmHWM = ProcFileUtils.getBytesValue(procStatus, "VmHWM");
+        Long procStatusVmSize = ProcFileUtils.getBytesValue(procStatus, "VmSize");
+        Long procStatusVmPeak = ProcFileUtils.getBytesValue(procStatus, "VmPeak");
 
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -210,9 +212,14 @@ public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
         if (procStatusVmRSS != null) {
             map.put("vmRSS", procStatusVmRSS);
         }
-        
         if (procStatusVmHWM != null) {
             map.put("vmHWM", procStatusVmHWM);
+        }
+        if (procStatusVmSize != null) {
+            map.put("vmSize", procStatusVmSize);
+        }
+        if (procStatusVmPeak != null) {
+            map.put("vmPeak", procStatusVmPeak);
         }
 
         if (reporter != null) {

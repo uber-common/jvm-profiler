@@ -35,6 +35,8 @@ public class ProcFileUtilsTest {
         file.deleteOnExit();
 
         String content = "Name:\tcat\t\n" 
+            + "VmSize:	     776 kB \r\n"
+            + "VmPeak:	     876 kB \r\n"
             + "VmRSS:	     676 kB \r\n"
             + "\t  Pid \t  : \t 66646 \t\n\r"
             + "Threads: \t 1 \t\n"
@@ -42,7 +44,7 @@ public class ProcFileUtilsTest {
         Files.write(file.toPath(), content.getBytes(), StandardOpenOption.CREATE);
 
         Map<String, String> result = ProcFileUtils.getProcFileAsMap(file.getPath());
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(6, result.size());
         
         Assert.assertEquals("cat", result.get("Name"));
         Assert.assertEquals("676 kB", result.get("VmRSS"));
@@ -83,6 +85,8 @@ public class ProcFileUtilsTest {
         if (result.size() >= 1) {
             Assert.assertTrue(result.containsKey("Pid"));
             Assert.assertTrue(result.containsKey("VmRSS"));
+            Assert.assertTrue(result.containsKey("VmSize"));
+            Assert.assertTrue(result.containsKey("VmPeak"));
         }
     }
     
