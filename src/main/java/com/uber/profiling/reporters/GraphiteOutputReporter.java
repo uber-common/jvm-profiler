@@ -9,8 +9,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Metrics reporter class for Graphite.
@@ -39,6 +41,8 @@ public class GraphiteOutputReporter implements Reporter {
   private Socket socket = null;
   private PrintWriter out = null;
 
+  private Set whiteList = new HashSet();
+
   @Override
   public void report(String profilerName, Map<String, Object> metrics) {
     // get DB connection
@@ -62,8 +66,17 @@ public class GraphiteOutputReporter implements Reporter {
     formattedMetrics.remove("processUuid");
     long timestamp = System.currentTimeMillis() / 1000;
     for (Map.Entry<String, Object> entry : formattedMetrics.entrySet()) {
-      out.printf(
-          newPrefix + "." + entry.getKey() + " " + entry.getValue() + " " + timestamp + "%n");
+      try {
+        if (whiteList.contains(entry.getKey())) {
+          out.printf(
+              newPrefix + "." + entry.getKey() + " " + entry.getValue() + " " + timestamp + "%n");
+        }
+      } catch (Exception e) {
+        logger.warn("Unable to print metrics, newPrefix=" + newPrefix
+            + ", entry.getKey()= " + entry.getKey()
+            + ", entry.getValue()= " + entry.getValue()
+            + ", timestamp= " + timestamp);
+      }
     }
   }
 
@@ -186,6 +199,13 @@ public class GraphiteOutputReporter implements Reporter {
         } else if (key.equals("graphite.prefix")) {
           logger.info("Got value for database = " + stringValue);
           this.prefix = stringValue;
+        } else if (key.equals("graphite.whiteList")) {
+          logger.info("Got value for whiteList = " + stringValue);
+          if (stringValue != null && stringValue.length() > 0) {
+            for (String pattern : stringValue.split(",")) {
+              this.whiteList.add(pattern.trim());
+            }
+          }
         }
       }
     }
