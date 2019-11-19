@@ -105,25 +105,21 @@ public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
 
         Double heapMemoryTotalUsed = null;
         Double heapMemoryCommitted = null;
-        Double heapMemoryInit = null;
         Double heapMemoryMax = null;
 
         Double nonHeapMemoryTotalUsed = null;
         Double nonHeapMemoryCommitted = null;
-        Double nonHeapMemoryInit = null;
         Double nonHeapMemoryMax = null;
         
         if (memoryMXBean != null) {
             MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage();
             heapMemoryTotalUsed = new Double(memoryUsage.getUsed());
             heapMemoryCommitted = new Double(memoryUsage.getCommitted());
-            heapMemoryInit =  new Double(memoryUsage.getInit());
             heapMemoryMax =  new Double(memoryUsage.getMax());
 
             memoryUsage = memoryMXBean.getNonHeapMemoryUsage();
             nonHeapMemoryTotalUsed = new Double(memoryUsage.getUsed());
             nonHeapMemoryCommitted = new Double(memoryUsage.getCommitted());
-            nonHeapMemoryInit =  new Double(memoryUsage.getInit());
             nonHeapMemoryMax =  new Double(memoryUsage.getMax());
 
         }
@@ -208,13 +204,11 @@ public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
         map.put("heapMemoryTotalUsed", heapMemoryTotalUsed);
         map.put("heapMemoryCommitted", heapMemoryCommitted);
         map.put("heapMemoryMax", heapMemoryMax);
-        map.put("heapMemoryInit", heapMemoryInit);
 
         map.put("nonHeapMemoryTotalUsed", nonHeapMemoryTotalUsed);
         map.put("nonHeapMemoryCommitted", nonHeapMemoryCommitted);
         map.put("nonHeapMemoryMax", nonHeapMemoryMax);
-        map.put("nonHeapMemoryInit", nonHeapMemoryInit);
-
+        
         map.put("gc", gcMetrics);
 
         map.put("memoryPools", memoryPoolsMetrics);
