@@ -101,7 +101,7 @@ The java agent supports following parameters, which could be used in Java comman
 
 - metricInterval: how frequent to collect and report the metrics, in milliseconds.
 
-- durationProfiling: configure to profile specific class and method, e.g. com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod. It also support wildcard (*) for method name, e.g. com.uber.profiling.examples.HelloWorldApplication.*.
+- durationProfiling: configure to profile specific class and method, e.g. com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod. It also support wildcard (\*) for method name, e.g. com.uber.profiling.examples.HelloWorldApplication.*.
 
 - argumentProfiling: configure to profile specific method argument, e.g. com.uber.profiling.examples.HelloWorldApplication.publicSleepMethod.1 (".1" means getting value for the first argument and sending out in the reporter).
 
