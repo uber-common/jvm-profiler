@@ -234,6 +234,10 @@ Following is an example of CPU and Memory metrics when using ConsoleOutputReport
 }
 ```
 
+## Metric Details
+
+A list of all metrics and information corresponding to them can be found [here](metricDetails.md).
+
 ## Generate flamegraph of Stacktrack Profiling result
 
 We can take the output of Stacktrack Profiling to generate flamegraph to visualize CPU time. Using the Python script `stackcollapse.py`, following command will collapse Stacktrack Profiling json output file to the input file format for generating flamegraph. The script `flamegraph.pl` can be found at [FlameGraph](https://github.com/brendangregg/FlameGraph).
