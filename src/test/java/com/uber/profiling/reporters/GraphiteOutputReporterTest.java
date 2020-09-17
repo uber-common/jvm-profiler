@@ -46,8 +46,8 @@ public class GraphiteOutputReporterTest {
     metrics.put("startEpoch", 1569205908214L);
     metrics.put("endEpoch", 1569205908258L);
     metrics.put("appId", "hello_jvm_profile");
-    metrics.put("host", "prd-zboffline-gw1.prd.leyantech.com");
-    metrics.put("name", "29287@prd-zboffline-gw1.prd.leyantech.com");
+    metrics.put("host", "test_host");
+    metrics.put("name", "29287@test_host");
     metrics.put("processUuid", "387067c9-f685-49c7-9839-b0a0f96084a2");
     metrics.put("threadState", "WAITING");
     metrics.put("count", 1L);
@@ -128,7 +128,7 @@ public class GraphiteOutputReporterTest {
     expectedMetrics.put("epochMillis", 1569205913277L);
     expectedMetrics.put("heapMemoryCommitted", 5.04889344E8);
     expectedMetrics.put("heapMemoryTotalUsed", 4.2389864E7);
-    expectedMetrics.put("host", "prd-zboffline-gw1.prd.leyantech.com");
+    expectedMetrics.put("host", "test_host");
     expectedMetrics.put("memoryPools.CodeCache.peakUsageCommitted", 2555904L);
     expectedMetrics.put("memoryPools.CodeCache.peakUsageMax", 251658240L);
     expectedMetrics.put("memoryPools.CodeCache.peakUsageUsed", 2072256L);
@@ -171,7 +171,7 @@ public class GraphiteOutputReporterTest {
     expectedMetrics.put("memoryPools.PSSurvivorSpace.usageCommitted", 21495808L);
     expectedMetrics.put("memoryPools.PSSurvivorSpace.usageMax", 21495808L);
     expectedMetrics.put("memoryPools.PSSurvivorSpace.usageUsed", 0L);
-    expectedMetrics.put("name", "29287@prd-zboffline-gw1.prd.leyantech.com");
+    expectedMetrics.put("name", "29287@test_host");
     expectedMetrics.put("nonHeapMemoryCommitted", 1.80224E7);
     expectedMetrics.put("nonHeapMemoryTotalUsed", 1.690948E7);
     expectedMetrics.put("processUuid", "387067c9-f685-49c7-9839-b0a0f96084a2");
