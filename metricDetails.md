@@ -159,3 +159,20 @@
 |threadState                                             |State of the thread when this stacktrace was captured.           |NEW, RUNNABLE, BLOCKED, WAITING ...           |                                                                                       |
 
 [Back to Top](#Title)
+
+## 5. Thread Info <a name="ThreadInfo"></a>
+
+|**Name**                                                |**Description**                                                  |**Sample Value**                              |**Notes**                                                                              |
+|--------------------------------------------------------|-----------------------------------------------------------------|----------------------------------------------|---------------------------------------------------------------------------------------|
+|time                                                    |Time series value for grafana database.                          |1582504713009000000                           |                                                                                       |
+|epochMillis                                             |System time in milliseconds when this value was recorded.        |1582504781508                                 |                                                                                       |
+|host                                                    |Hostname of the executor.                                        |uber-bigdata-datanode2.uber.com               |                                                                                       |
+|name                                                    |Process name (number).                                           |12345@uber-bigdata-datanode2.uber.com         |Includes the hostname as well.                                                         |
+|appId                                                   |Application id for the job that is running.                      |application_1576797426048_311346              |If using yarn, this is the yarn application id.                                        |
+|processUuid                                             |UUID of the JVM process.                                         |89a256c7-96c3-4e48-b5ba-f55e886ba743          |                                                                                       |
+|role                                                    |Role of this spark executor.                                     |executor                                      |Can be either executor or driver.                                                      |
+|totalThreadCount                                        |Total Number of Thread created so far since JVm Launch.          |10                                            |                                                                                       |
+|liveThreadCount                                         |Number of thread which are currently active.                     |8                                             |                                                                                       |
+|newThreadCount                                          |Number of thread which are newly Created.                        |3                                             | Derived from last Cycle Total Threads.                                                |
+|peakThreadCount                                         |the peak live thread count since the JVM start                   |8                                             |                                                                                       |
+[Back to Top](#Title)
