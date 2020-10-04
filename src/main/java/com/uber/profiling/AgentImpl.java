@@ -16,15 +16,7 @@
 
 package com.uber.profiling;
 
-import com.uber.profiling.profilers.CpuAndMemoryProfiler;
-import com.uber.profiling.profilers.IOProfiler;
-import com.uber.profiling.profilers.MethodArgumentCollector;
-import com.uber.profiling.profilers.MethodArgumentProfiler;
-import com.uber.profiling.profilers.MethodDurationCollector;
-import com.uber.profiling.profilers.MethodDurationProfiler;
-import com.uber.profiling.profilers.ProcessInfoProfiler;
-import com.uber.profiling.profilers.StacktraceCollectorProfiler;
-import com.uber.profiling.profilers.StacktraceReporterProfiler;
+import com.uber.profiling.profilers.*;
 import com.uber.profiling.transformers.JavaAgentFileTransformer;
 import com.uber.profiling.transformers.MethodProfilerStaticProxy;
 import com.uber.profiling.util.AgentLogger;
@@ -144,6 +136,15 @@ public class AgentImpl {
         cpuAndMemoryProfiler.setAppId(appId);
 
         profilers.add(cpuAndMemoryProfiler);
+
+        ThreadInfoProfiler threadInfoProfiler = new ThreadInfoProfiler(reporter);
+        threadInfoProfiler.setTag(tag);
+        threadInfoProfiler.setCluster(cluster);
+        threadInfoProfiler.setIntervalMillis(metricInterval);
+        threadInfoProfiler.setProcessUuid(processUuid);
+        threadInfoProfiler.setAppId(appId);
+
+        profilers.add(threadInfoProfiler);
 
         ProcessInfoProfiler processInfoProfiler = new ProcessInfoProfiler(reporter);
         processInfoProfiler.setTag(tag);
