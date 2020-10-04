@@ -35,6 +35,7 @@ public class ThreadInfoProfilerTest {
         profiler.profile();
         profiler.profile();
 
+        //start assertion.
         Assert.assertEquals(2, nameList.size());
         Assert.assertEquals(ThreadInfoProfiler.PROFILER_NAME, nameList.get(0));
 
