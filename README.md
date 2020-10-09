@@ -87,6 +87,8 @@ Uber JVM Profiler supports following features:
 
 6. Debug IO metrics (disk read/write bytes for the application, CPU iowait for the machine).
 
+7. Debug JVM Thread Metrics like Count of Total Threads, Peak Threads, Live/Active Threads and newly Threads.
+
 ## Parameter List
 
 The java agent supports following parameters, which could be used in Java command line like "-javaagent:agent_jar_file.jar=param1=value1,param2=value2":
