@@ -18,7 +18,7 @@ public class ThreadInfoProfiler extends ProfilerBase implements Profiler {
     private long intervalMillis = Constants.DEFAULT_METRIC_INTERVAL;
 
     private ThreadMXBean threadMXBean;
-    private long previousTotalThreadCount = 0L; // to keep track of Total Thread.
+    private long previousTotalStartedThreadCount = 0L; // to keep track of Total Thread.
 
     private Reporter reporter;
 
@@ -54,7 +54,7 @@ public class ThreadInfoProfiler extends ProfilerBase implements Profiler {
     @Override
     public void profile() {
 
-        long totalThreadCount = 0L; // total Thread created so far since JVm Launch.
+        long totalStartedThreadCount = 0L; // total Thread created so far since JVm Launch.
         int liveThreadCount = 0; // Number of thread which are currently active.
         int peakThreadCount = 0; // the peak live thread count since the Java virtual machine started or peak was reset
         long newThreadCount = 0; // Number of new thread created since last time time the metrics was created.
@@ -62,9 +62,9 @@ public class ThreadInfoProfiler extends ProfilerBase implements Profiler {
         if (threadMXBean != null) {
             liveThreadCount =  threadMXBean.getThreadCount();
             peakThreadCount = threadMXBean.getPeakThreadCount();
-            totalThreadCount = threadMXBean.getTotalStartedThreadCount();
-            newThreadCount = totalThreadCount - this.previousTotalThreadCount;
-            this.previousTotalThreadCount = totalThreadCount;
+            totalStartedThreadCount = threadMXBean.getTotalStartedThreadCount();
+            newThreadCount = totalStartedThreadCount - this.previousTotalStartedThreadCount;
+            this.previousTotalStartedThreadCount = totalStartedThreadCount;
         }
 
         Map<String, Object> map = new HashMap<>();
@@ -87,7 +87,7 @@ public class ThreadInfoProfiler extends ProfilerBase implements Profiler {
             map.put("role", getRole());
         }
 
-        map.put("totalThreadCount", totalThreadCount);
+        map.put("totalStartedThreadCount", totalStartedThreadCount);
         map.put("newThreadCount", newThreadCount);
         map.put("liveThreadCount", liveThreadCount);
         map.put("peakThreadCount", peakThreadCount);

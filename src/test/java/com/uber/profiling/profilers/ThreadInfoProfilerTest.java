@@ -40,7 +40,7 @@ public class ThreadInfoProfilerTest {
         Assert.assertEquals(ThreadInfoProfiler.PROFILER_NAME, nameList.get(0));
 
         Assert.assertEquals(2, metricList.size());
-        Assert.assertTrue(metricList.get(0).containsKey("totalThreadCount"));
+        Assert.assertTrue(metricList.get(0).containsKey("totalStartedThreadCount"));
         Assert.assertTrue(metricList.get(0).containsKey("newThreadCount"));
         Assert.assertTrue(metricList.get(0).containsKey("liveThreadCount"));
         Assert.assertTrue(metricList.get(0).containsKey("peakThreadCount"));
