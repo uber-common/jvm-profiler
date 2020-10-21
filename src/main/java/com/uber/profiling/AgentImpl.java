@@ -146,15 +146,6 @@ public class AgentImpl {
 
         profilers.add(cpuAndMemoryProfiler);
 
-        ThreadInfoProfiler threadInfoProfiler = new ThreadInfoProfiler(reporter);
-        threadInfoProfiler.setTag(tag);
-        threadInfoProfiler.setCluster(cluster);
-        threadInfoProfiler.setIntervalMillis(metricInterval);
-        threadInfoProfiler.setProcessUuid(processUuid);
-        threadInfoProfiler.setAppId(appId);
-
-        profilers.add(threadInfoProfiler);
-
         ProcessInfoProfiler processInfoProfiler = new ProcessInfoProfiler(reporter);
         processInfoProfiler.setTag(tag);
         processInfoProfiler.setCluster(cluster);
@@ -162,6 +153,17 @@ public class AgentImpl {
         processInfoProfiler.setAppId(appId);
 
         profilers.add(processInfoProfiler);
+
+        if (arguments.isThreadProfiling()) {
+            ThreadInfoProfiler threadInfoProfiler = new ThreadInfoProfiler(reporter);
+            threadInfoProfiler.setTag(tag);
+            threadInfoProfiler.setCluster(cluster);
+            threadInfoProfiler.setIntervalMillis(metricInterval);
+            threadInfoProfiler.setProcessUuid(processUuid);
+            threadInfoProfiler.setAppId(appId);
+
+            profilers.add(threadInfoProfiler);
+        }
 
         if (!arguments.getDurationProfiling().isEmpty()) {
             ClassAndMethodLongMetricBuffer classAndMethodMetricBuffer = new ClassAndMethodLongMetricBuffer();
