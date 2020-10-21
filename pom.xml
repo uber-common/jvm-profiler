@@ -241,6 +241,7 @@
                                     <excludes>
                                         <exclude>META-INF/maven/**</exclude>
                                         <exclude>META-INF/services/com.fasterxml.**</exclude>
+                                        <exclude>META-INF/services/java.sql.Driver</exclude>
                                         <exclude>awssdk_config_default.json</exclude>
                                         <exclude>heatpipe.config.properties</exclude>
                                         <exclude>log4j.properties</exclude>
@@ -249,6 +250,7 @@
                                         <exclude>linux/amd64/liblz4-java.so</exclude>
                                         <exclude>linux/i386/liblz4-java.so</exclude>
                                         <exclude>win32/amd64/liblz4-java.so</exclude>
+                                        <exclude>org/gjt/mm/mysql/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

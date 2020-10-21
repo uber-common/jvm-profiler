@@ -45,6 +45,7 @@ public class Arguments {
     public final static String ARG_CLUSTER = "cluster";
     public final static String ARG_APP_ID_VARIABLE = "appIdVariable";
     public final static String ARG_APP_ID_REGEX = "appIdRegex";
+    public final static String ARG_THREAD_PROFILING = "threadProfiling";
     public final static String ARG_DURATION_PROFILING = "durationProfiling";
     public final static String ARG_ARGUMENT_PROFILING = "argumentProfiling";
     
@@ -68,7 +69,8 @@ public class Arguments {
     private long sampleInterval = 0L;
     private String tag;
     private String cluster;
-    private boolean ioProfiling;
+    private boolean threadProfiling = false;
+    private boolean ioProfiling = false;
 
     private List<ClassAndMethod> durationProfiling = new ArrayList<>();
     private List<ClassMethodArgument> argumentProfiling = new ArrayList<>();
@@ -179,6 +181,12 @@ public class Arguments {
         if (ArgumentUtils.needToUpdateArg(argValue)) {
             appIdRegex = argValue;
             logger.info("Got argument value for appIdRegex: " + appIdRegex);
+        }
+
+        argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_THREAD_PROFILING);
+        if (ArgumentUtils.needToUpdateArg(argValue)) {
+            threadProfiling = Boolean.parseBoolean(argValue);
+            logger.info("Got argument value for threadProfiling: " + threadProfiling);
         }
 
         List<String> argValues = ArgumentUtils.getArgumentMultiValues(parsedArgs, ARG_DURATION_PROFILING);
@@ -339,6 +347,10 @@ public class Arguments {
 
     public List<ClassMethodArgument> getArgumentProfiling() {
         return argumentProfiling;
+    }
+
+    public boolean isThreadProfiling() {
+        return threadProfiling;
     }
 
     public boolean isIoProfiling() {
