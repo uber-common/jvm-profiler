@@ -127,26 +127,24 @@ public class SingleTableJdbcWriter implements AutoCloseable {
       this.initialize();
     }
 
-    String json;
+    Map<?, ?> values;
+
     if (object instanceof byte[]) {
       byte[] bytes = (byte[]) object;
-      json = new String(bytes, StandardCharsets.UTF_8);
+      String json = new String(bytes, StandardCharsets.UTF_8);
+      values = parseJson(json);
     } else if (object instanceof String) {
-      json = (String) object;
+      String json = (String) object;
+      values = parseJson(json);
+    } else if (object instanceof Map) {
+      values = (Map)object;
     } else {
       throw new RuntimeException("Unsupported output object: " + object);
     }
 
-    Map<?, ?> jsonFieldValues;
-    try {
-      jsonFieldValues = mapper.readValue(json, Map.class);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to parse json object: " + json, e);
-    }
-
     List<String> nonNullFields = new ArrayList<>();
     List<Object> nonNullValues = new ArrayList<>();
-    for (Map.Entry entry : jsonFieldValues.entrySet()) {
+    for (Map.Entry entry : values.entrySet()) {
       if (entry.getValue() == null) {
         continue;
       }
@@ -207,18 +205,28 @@ public class SingleTableJdbcWriter implements AutoCloseable {
       throw new RuntimeException(
           String.format(
               "Failed to run sql [%s] to insert object %s: %s",
-              sql, json, ExceptionUtils.getStackTrace(e)),
+              sql, object, ExceptionUtils.getStackTrace(e)),
           e);
     }
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (connectionProvider == null) {
       return;
     }
 
     connectionProvider.close();
+  }
+
+  private Map<?, ?> parseJson(String json) {
+    Map<?, ?> values;
+    try {
+      values = mapper.readValue(json, Map.class);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to parse json object: " + json, e);
+    }
+    return values;
   }
 
   private void getTableMetadata() {

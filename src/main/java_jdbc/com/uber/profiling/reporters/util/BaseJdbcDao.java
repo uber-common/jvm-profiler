@@ -126,8 +126,8 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
   }
 
-  public void insertOrUpdate(String json) {
-    singleTableJdbcWriter.write(json);
+  public void insertOrUpdate(Object object) {
+    singleTableJdbcWriter.write(object);
   }
 
   public List<List<Object>> queryColumns(int maxResultCount, String... columns) {
