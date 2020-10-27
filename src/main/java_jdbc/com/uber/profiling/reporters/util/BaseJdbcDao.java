@@ -16,6 +16,7 @@
 
 package com.uber.profiling.reporters.util;
 
+import com.uber.profiling.reporters.CpuAndMemoryProfilerMetric;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -126,7 +127,7 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
   }
 
-  public void insertOrUpdate(Object object) {
+  protected void insertOrUpdate(Object object) {
     singleTableJdbcWriter.write(object);
   }
 
@@ -303,13 +304,16 @@ public abstract class BaseJdbcDao implements AutoCloseable {
       }
       return totalDeleteCount;
     } else {
+      String timestampColumnName = timestampColumns.get(0);
       Date nextDay = DateTimeUtils.addDays(endDayInclusive, 1);
       Date endDayExclusive = DateTimeUtils.truncateToDay(nextDay);
       String sql =
           String.format(
-              "DELETE FROM %s where timestamp >= '%s' and timestamp < '%s'",
+              "DELETE FROM %s where %s >= '%s' and %s < '%s'",
               getTableName(),
+              timestampColumnName,
               DateTimeUtils.formatAsIsoWithoutMillis(startDayInclusive),
+              timestampColumnName,
               DateTimeUtils.formatAsIsoWithoutMillis(endDayExclusive));
       logger.info(String.format("Running sql to delete data: %s", sql));
       long totalDeleteCount = executeUpdate(sql);
