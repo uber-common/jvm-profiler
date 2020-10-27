@@ -48,8 +48,27 @@ public class JdbcOutputReporter implements Reporter {
                         cpuAndMemoryProfilerMetricDao = new CpuAndMemoryProfilerMetricDao(driverClass, connectionString, cpuAndMemoryProfilerTableName);
                     }
                     CpuAndMemoryProfilerMetric cpuAndMemoryProfilerMetric = new CpuAndMemoryProfilerMetric();
-                    String jsonStr = JsonUtils.serialize(cpuAndMemoryProfilerMetric);
-                    cpuAndMemoryProfilerMetricDao.insertOrUpdate(jsonStr);
+                    cpuAndMemoryProfilerMetric.setEpochMillis((Long)metrics.get("epochMillis"));
+                    cpuAndMemoryProfilerMetric.setName((String)metrics.get("name"));
+                    cpuAndMemoryProfilerMetric.setHost((String)metrics.get("host"));
+                    cpuAndMemoryProfilerMetric.setProcessUuid((String)metrics.get("processUuid"));
+                    cpuAndMemoryProfilerMetric.setAppId((String)metrics.get("appId"));
+                    cpuAndMemoryProfilerMetric.setTag((String)metrics.get("tag"));
+                    cpuAndMemoryProfilerMetric.setRole((String)metrics.get("role"));
+                    cpuAndMemoryProfilerMetric.setProcessCpuLoad((Double)metrics.get("processCpuLoad"));
+                    cpuAndMemoryProfilerMetric.setSystemCpuLoad((Double)metrics.get("systemCpuLoad"));
+                    cpuAndMemoryProfilerMetric.setProcessCpuTime((Long)metrics.get("processCpuTime"));
+                    cpuAndMemoryProfilerMetric.setHeapMemoryTotalUsed((Long)metrics.get("heapMemoryTotalUsed"));
+                    cpuAndMemoryProfilerMetric.setHeapMemoryCommitted((Long)metrics.get("heapMemoryCommitted"));
+                    cpuAndMemoryProfilerMetric.setHeapMemoryMax((Long)metrics.get("heapMemoryMax"));
+                    cpuAndMemoryProfilerMetric.setNonHeapMemoryTotalUsed((Long)metrics.get("nonHeapMemoryTotalUsed"));
+                    cpuAndMemoryProfilerMetric.setNonHeapMemoryCommitted((Long)metrics.get("nonHeapMemoryCommitted"));
+                    cpuAndMemoryProfilerMetric.setNonHeapMemoryMax((Long)metrics.get("nonHeapMemoryMax"));
+                    cpuAndMemoryProfilerMetric.setVmRSS((Long)metrics.get("vmRSS"));
+                    cpuAndMemoryProfilerMetric.setVmHWM((Long)metrics.get("vmHWM"));
+                    cpuAndMemoryProfilerMetric.setVmSize((Long)metrics.get("vmSize"));
+                    cpuAndMemoryProfilerMetric.setVmPeak((Long)metrics.get("vmPeak"));
+                    cpuAndMemoryProfilerMetricDao.insertOrUpdate(cpuAndMemoryProfilerMetric);
                 } catch (Throwable ex) {
                     logger.warn("Failed to insert metric to db table", ex);
                 }
@@ -69,20 +88,20 @@ public class JdbcOutputReporter implements Reporter {
 
 
     @Override
-    public void updateArguments(Map<String, List<String>> connectionProperties) {
-        String driverClassArgValue = ArgumentUtils.getArgumentSingleValue(connectionProperties, ARG_DRIVER_CLASS);
+    public void updateArguments(Map<String, List<String>> arguments) {
+        String driverClassArgValue = ArgumentUtils.getArgumentSingleValue(arguments, ARG_DRIVER_CLASS);
         if (ArgumentUtils.needToUpdateArg(driverClassArgValue)) {
             driverClass = driverClassArgValue;
             logger.info("Got argument value for driverClass: " + driverClass);
         }
 
-        String connectionStringArgValue = ArgumentUtils.getArgumentSingleValue(connectionProperties, ARG_CONNECTION_STRING);
+        String connectionStringArgValue = ArgumentUtils.getArgumentSingleValue(arguments, ARG_CONNECTION_STRING);
         if (ArgumentUtils.needToUpdateArg(connectionStringArgValue)) {
             connectionString = connectionStringArgValue;
             logger.info("Got argument value for connectionString: " + connectionString);
         }
 
-        String cpuAndMemoryProfilerTableNameArgValue = ArgumentUtils.getArgumentSingleValue(connectionProperties, ARG_CPU_AND_MEMORY_PROFILER_TABLE_NAME);
+        String cpuAndMemoryProfilerTableNameArgValue = ArgumentUtils.getArgumentSingleValue(arguments, ARG_CPU_AND_MEMORY_PROFILER_TABLE_NAME);
         if (ArgumentUtils.needToUpdateArg(cpuAndMemoryProfilerTableNameArgValue)) {
             cpuAndMemoryProfilerTableName = cpuAndMemoryProfilerTableNameArgValue;
             logger.info("Got argument value for cpuAndMemoryProfilerTableName: " + cpuAndMemoryProfilerTableName);

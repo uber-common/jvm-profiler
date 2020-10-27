@@ -48,17 +48,7 @@ public class CpuAndMemoryProfilerMetricDaoTest {
     entity1.setProcessCpuLoad(0.111);
     entity1.setHeapMemoryCommitted(1000L);
 
-    Map<Object, Object> map1 = new HashMap<>();
-    map1.put("epochMillis", entity1.getEpochMillis());
-    map1.put("name", entity1.getName());
-    map1.put("host", entity1.getHost());
-    map1.put("processUuid", entity1.getProcessUuid());
-    map1.put("appId", entity1.getAppId());
-    map1.put("tag", entity1.getTag());
-    map1.put("processCpuLoad", entity1.getProcessCpuLoad());
-    map1.put("heapMemoryCommitted", entity1.getHeapMemoryCommitted());
-
-    dao.insertOrUpdate(map1);
+    dao.insertOrUpdate(entity1);
 
     CpuAndMemoryProfilerMetric entity2 = new CpuAndMemoryProfilerMetric();
     entity2.setEpochMillis(1535651091000L);
@@ -70,17 +60,7 @@ public class CpuAndMemoryProfilerMetricDaoTest {
     entity2.setProcessCpuLoad(0.222);
     entity2.setHeapMemoryCommitted(2000L);
 
-    Map<Object, Object> map2 = new HashMap<>();
-    map2.put("epochMillis", entity2.getEpochMillis());
-    map2.put("name", entity2.getName());
-    map2.put("host", entity2.getHost());
-    map2.put("processUuid", entity2.getProcessUuid());
-    map2.put("appId", entity2.getAppId());
-    map2.put("tag", entity2.getTag());
-    map2.put("processCpuLoad", entity2.getProcessCpuLoad());
-    map2.put("heapMemoryCommitted", entity2.getHeapMemoryCommitted());
-
-    dao.insertOrUpdate(map2);
+    dao.insertOrUpdate(entity2);
 
     Assert.assertEquals(2, dao.getTotalCount());
 

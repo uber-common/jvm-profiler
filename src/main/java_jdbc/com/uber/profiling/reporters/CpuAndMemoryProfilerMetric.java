@@ -16,12 +16,15 @@
 
 package com.uber.profiling.reporters;
 
+import java.util.Map;
+
 public class CpuAndMemoryProfilerMetric {
   private Long epochMillis;
   private String name;
   private String host;
   private String processUuid;
   private String appId;
+
   private String tag;
   private String role;
   private Double processCpuLoad;
@@ -33,6 +36,10 @@ public class CpuAndMemoryProfilerMetric {
   private Long nonHeapMemoryTotalUsed;
   private Long nonHeapMemoryCommitted;
   private Long nonHeapMemoryMax;
+  private Long vmRSS;
+  private Long vmHWM;
+  private Long vmSize;
+  private Long vmPeak;
 
   public Long getEpochMillis() {
     return epochMillis;
@@ -160,5 +167,37 @@ public class CpuAndMemoryProfilerMetric {
 
   public void setNonHeapMemoryMax(Long nonHeapMemoryMax) {
     this.nonHeapMemoryMax = nonHeapMemoryMax;
+  }
+
+  public Long getVmRSS() {
+    return vmRSS;
+  }
+
+  public void setVmRSS(Long vmRSS) {
+    this.vmRSS = vmRSS;
+  }
+
+  public Long getVmHWM() {
+    return vmHWM;
+  }
+
+  public void setVmHWM(Long vmHWM) {
+    this.vmHWM = vmHWM;
+  }
+
+  public Long getVmSize() {
+    return vmSize;
+  }
+
+  public void setVmSize(Long vmSize) {
+    this.vmSize = vmSize;
+  }
+
+  public Long getVmPeak() {
+    return vmPeak;
+  }
+
+  public void setVmPeak(Long vmPeak) {
+    this.vmPeak = vmPeak;
   }
 }

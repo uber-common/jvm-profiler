@@ -19,6 +19,8 @@ package com.uber.profiling.reporters;
 import com.uber.profiling.reporters.util.BaseJdbcDao;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CpuAndMemoryProfilerMetricDao extends BaseJdbcDao {
 
@@ -26,7 +28,7 @@ public class CpuAndMemoryProfilerMetricDao extends BaseJdbcDao {
 
   public static final String[] PRIMARY_KEYS = new String[] {"epochMillis", "name", "host", "processUuid", "appId"};
 
-  public static final String[] INDEX_COLUMNS = new String[] {"epochMillis", "name", "host", "processUuid", "appId", "tag", "role"};
+  public static final String[] INDEX_COLUMNS = new String[] {"epochMillis", "name", "host", "processUuid", "appId"};
 
   public static final String[] DATETIME_COLUMNS = new String[] {"epochMillis"};
 
@@ -43,5 +45,30 @@ public class CpuAndMemoryProfilerMetricDao extends BaseJdbcDao {
         Arrays.asList(INDEX_COLUMNS),
         Arrays.asList(DATETIME_COLUMNS),
         Arrays.asList(TEXT_COLUMNS));
+  }
+
+  public void insertOrUpdate(CpuAndMemoryProfilerMetric entity) {
+    Map map = new HashMap();
+    map.put("epochMillis", entity.getEpochMillis());
+    map.put("name", entity.getName());
+    map.put("host", entity.getHost());
+    map.put("processUuid", entity.getProcessUuid());
+    map.put("appId", entity.getAppId());
+    map.put("tag", entity.getTag());
+    map.put("role", entity.getRole());
+    map.put("processCpuLoad", entity.getProcessCpuLoad());
+    map.put("systemCpuLoad", entity.getSystemCpuLoad());
+    map.put("processCpuTime", entity.getProcessCpuTime());
+    map.put("heapMemoryTotalUsed", entity.getHeapMemoryTotalUsed());
+    map.put("heapMemoryCommitted", entity.getHeapMemoryCommitted());
+    map.put("heapMemoryMax", entity.getHeapMemoryMax());
+    map.put("nonHeapMemoryCommitted", entity.getNonHeapMemoryCommitted());
+    map.put("nonHeapMemoryTotalUsed", entity.getNonHeapMemoryTotalUsed());
+    map.put("nonHeapMemoryMax", entity.getNonHeapMemoryMax());
+    map.put("vmRSS", entity.getVmRSS());
+    map.put("vmHWM", entity.getVmHWM());
+    map.put("vmSize", entity.getVmSize());
+    map.put("vmPeak", entity.getVmPeak());
+    insertOrUpdate(map);
   }
 }

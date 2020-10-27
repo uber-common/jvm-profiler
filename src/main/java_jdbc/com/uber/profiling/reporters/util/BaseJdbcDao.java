@@ -16,6 +16,7 @@
 
 package com.uber.profiling.reporters.util;
 
+import com.uber.profiling.reporters.CpuAndMemoryProfilerMetric;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -126,7 +127,7 @@ public abstract class BaseJdbcDao implements AutoCloseable {
     }
   }
 
-  public void insertOrUpdate(Object object) {
+  protected void insertOrUpdate(Object object) {
     singleTableJdbcWriter.write(object);
   }
 
