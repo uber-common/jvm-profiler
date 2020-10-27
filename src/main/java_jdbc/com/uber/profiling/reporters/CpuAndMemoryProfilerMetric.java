@@ -16,8 +16,6 @@
 
 package com.uber.profiling.reporters;
 
-import java.util.Map;
-
 public class CpuAndMemoryProfilerMetric {
   private Long epochMillis;
   private String name;
