@@ -16,7 +16,6 @@
 
 package com.uber.profiling.profilers;
 
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ProcFileUtils;
@@ -36,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
+public class CpuAndMemoryProfiler extends ProfilerBase {
     public final static String PROFILER_NAME = "CpuAndMemory";
 
     private static final AgentLogger logger = AgentLogger.getLogger(CpuAndMemoryProfiler.class.getName());
@@ -70,6 +69,7 @@ public class CpuAndMemoryProfiler extends ProfilerBase implements Profiler {
         return intervalMillis;
     }
 
+    @Override
     public void setIntervalMillis(long intervalMillis) {
         this.intervalMillis = intervalMillis;
     }

@@ -17,7 +17,6 @@
 package com.uber.profiling.profilers;
 
 import com.uber.profiling.AgentImpl;
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.ProcFileUtils;
@@ -30,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProcessInfoProfiler extends ProfilerBase implements Profiler {
+public class ProcessInfoProfiler extends ProfilerBase {
     public final static String PROFILER_NAME = "ProcessInfo";
 
     private static final AgentLogger logger = AgentLogger.getLogger(ProcessInfoProfiler.class.getName());
@@ -50,7 +49,14 @@ public class ProcessInfoProfiler extends ProfilerBase implements Profiler {
 
     @Override
     public long getIntervalMillis() {
-        return 0;
+        return -1;
+    }
+
+    @Override
+    public void setIntervalMillis(long millis) {
+        if (millis > 0) {
+            throw new IllegalStateException("Cannot schedule " + PROFILER_NAME + " profiler");
+        }
     }
 
     @Override

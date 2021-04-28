@@ -19,6 +19,7 @@ package com.uber.profiling.profilers;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
 
 public class MethodArgumentCollector {
+    public static final String PROFILER_NAME = "MethodArgumentCollector";
     private ClassMethodArgumentMetricBuffer buffer;
 
     public MethodArgumentCollector(ClassMethodArgumentMetricBuffer buffer) {

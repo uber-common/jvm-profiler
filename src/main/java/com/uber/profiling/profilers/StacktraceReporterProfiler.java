@@ -16,7 +16,6 @@
 
 package com.uber.profiling.profilers;
 
-import com.uber.profiling.Profiler;
 import com.uber.profiling.Reporter;
 import com.uber.profiling.reporters.ConsoleOutputReporter;
 import com.uber.profiling.util.ClassAndMethod;
@@ -32,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * This class reads the stacktraces from the given buffer and send out via given reporter.
  */
-public class StacktraceReporterProfiler extends ProfilerBase implements Profiler {
+public class StacktraceReporterProfiler extends ProfilerBase {
     public static final String PROFILER_NAME = "Stacktrace";
 
     private StacktraceMetricBuffer buffer;
@@ -40,6 +39,10 @@ public class StacktraceReporterProfiler extends ProfilerBase implements Profiler
     private Reporter reporter = new ConsoleOutputReporter();
 
     private long intervalMillis = Constants.DEFAULT_METRIC_INTERVAL;
+
+    public StacktraceMetricBuffer getBuffer() {
+        return buffer;
+    }
 
     public StacktraceReporterProfiler(StacktraceMetricBuffer buffer, Reporter reporter) {
         this.buffer = buffer;
