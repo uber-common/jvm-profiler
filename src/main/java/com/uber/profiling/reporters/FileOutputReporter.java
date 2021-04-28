@@ -16,29 +16,32 @@
 
 package com.uber.profiling.reporters;
 
-import com.uber.profiling.Reporter;
 import com.uber.profiling.ArgumentUtils;
+import com.uber.profiling.Reporter;
 import com.uber.profiling.util.AgentLogger;
 import com.uber.profiling.util.JsonUtils;
+import com.uber.profiling.util.StringUtils;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class FileOutputReporter implements Reporter {
     public final static String ARG_OUTPUT_DIR = "outputDir";
-    
+    public final static String ARG_ENABLE_ROLLING = "enableRolling";
+    public final static String ARG_ROLLING_SIZE = "rollingSize";
+
     private static final AgentLogger logger = AgentLogger.getLogger(FileOutputReporter.class.getName());
     
     private String directory;
-    private ConcurrentHashMap<String, FileWriter> fileWriters = new ConcurrentHashMap<>();
     private volatile boolean closed = false;
+    private boolean enableRolling = false;
+    private Long rollingSize = StringUtils.getBytesValueOrNull("128mb");
     
     public FileOutputReporter() {
     }
@@ -71,10 +74,28 @@ public class FileOutputReporter implements Reporter {
 
     @Override
     public void updateArguments(Map<String, List<String>> parsedArgs) {
-        String argValue = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
-        if (ArgumentUtils.needToUpdateArg(argValue)) {
-            setDirectory(argValue);
-            logger.info("Got argument value for outputDir: " + argValue);
+        String outputDir = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_OUTPUT_DIR);
+        String enableRolling = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_ENABLE_ROLLING);
+        String rollingSize = ArgumentUtils.getArgumentSingleValue(parsedArgs, ARG_ROLLING_SIZE);
+        if (ArgumentUtils.needToUpdateArg(outputDir)) {
+            setDirectory(outputDir);
+            logger.info("Got argument value for outputDir: " + outputDir);
+        }
+
+        if (ArgumentUtils.needToUpdateRollingArg(enableRolling)) {
+            setAndCheckRollingArg(rollingSize);
+            logger.info("Got argument value for rollingSize: " + rollingSize);
+        }
+    }
+
+    private void setAndCheckRollingArg(String rollingSize) {
+        synchronized (this) {
+            this.enableRolling = true;
+            if (rollingSize != null && !rollingSize.isEmpty()) {
+                this.rollingSize = StringUtils.getBytesValueOrNull(rollingSize);
+            } else {
+                logger.info("Rolling size is default value: 128mb");
+            }
         }
     }
 
@@ -84,9 +105,8 @@ public class FileOutputReporter implements Reporter {
             logger.info("Report already closed, do not report metrics");
             return;
         }
-        
-        FileWriter writer = ensureFile(profilerName);
-        try {
+        ensureFile();
+        try (FileWriter writer = createFileWriter(profilerName, needRolling(profilerName))) {
             writer.write(JsonUtils.serialize(metrics));
             writer.write(System.lineSeparator());
             writer.flush();
@@ -95,22 +115,20 @@ public class FileOutputReporter implements Reporter {
         }
     }
 
-    @Override
-    public synchronized void close() {
-        closed = true;
-        
-        List<FileWriter> copy = new ArrayList<>(fileWriters.values());
-        for (FileWriter entry : copy) {
-            try {
-                entry.flush();
-                entry.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private boolean needRolling(String profilerName) {
+        synchronized (this) {
+            File file = new File(Paths.get(directory, profilerName + ".json").toString());
+            return enableRolling && file.length() > rollingSize;
         }
     }
-    
-    private FileWriter ensureFile(String profilerName) {
+
+    @Override
+    public synchronized void close() {
+        logger.info("close file output reporter");
+        closed = true;
+    }
+
+    private void ensureFile() {
         synchronized (this) {
             if (directory == null || directory.isEmpty()) {
                 try {
@@ -120,14 +138,12 @@ public class FileOutputReporter implements Reporter {
                 }
             }
         }
-
-        return fileWriters.computeIfAbsent(profilerName, t -> createFileWriter(t));
     }
     
-    private FileWriter createFileWriter(String profilerName) {
+    private FileWriter createFileWriter(String profilerName, boolean needRolling) {
         String path = Paths.get(directory, profilerName + ".json").toString();
         try {
-            return new FileWriter(path, true);
+            return new FileWriter(path, !needRolling);
         } catch (IOException e) {
             throw new RuntimeException("Failed to create file writer: " + path, e);
         }
