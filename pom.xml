@@ -110,6 +110,8 @@
                         <manifestEntries>
                             <Agent-Class>com.uber.profiling.Agent</Agent-Class>
                             <Premain-Class>com.uber.profiling.Agent</Premain-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>
                     </archive>
                 </configuration>

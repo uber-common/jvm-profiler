@@ -23,13 +23,15 @@ import com.uber.profiling.profilers.MethodArgumentProfiler;
 import com.uber.profiling.profilers.MethodDurationCollector;
 import com.uber.profiling.profilers.MethodDurationProfiler;
 import com.uber.profiling.profilers.ProcessInfoProfiler;
-import com.uber.profiling.profilers.ThreadInfoProfiler;
 import com.uber.profiling.profilers.StacktraceCollectorProfiler;
 import com.uber.profiling.profilers.StacktraceReporterProfiler;
+import com.uber.profiling.profilers.ThreadInfoProfiler;
 import com.uber.profiling.transformers.JavaAgentFileTransformer;
 import com.uber.profiling.transformers.MethodProfilerStaticProxy;
 import com.uber.profiling.util.AgentLogger;
+import com.uber.profiling.util.ClassAndMethod;
 import com.uber.profiling.util.ClassAndMethodLongMetricBuffer;
+import com.uber.profiling.util.ClassMethodArgument;
 import com.uber.profiling.util.ClassMethodArgumentMetricBuffer;
 import com.uber.profiling.util.SparkUtils;
 import com.uber.profiling.util.StacktraceMetricBuffer;
@@ -39,10 +41,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class AgentImpl {
     public static final String VERSION = "1.0.0";
@@ -76,7 +80,28 @@ public class AgentImpl {
 
         if (!arguments.getDurationProfiling().isEmpty()
                 || !arguments.getArgumentProfiling().isEmpty()) {
-            instrumentation.addTransformer(new JavaAgentFileTransformer(arguments.getDurationProfiling(), arguments.getArgumentProfiling()));
+            instrumentation.addTransformer(new JavaAgentFileTransformer(arguments.getDurationProfiling(),
+                    arguments.getArgumentProfiling()), true);
+
+            Set<String> loadedClasses = Arrays.stream(instrumentation.getAllLoadedClasses())
+                    .map(Class::getName).collect(Collectors.toSet());
+
+            Set<String> tobeReloadClasses = arguments.getDurationProfiling().stream()
+                    .map(ClassAndMethod::getClassName).collect(Collectors.toSet());
+
+            tobeReloadClasses.addAll(arguments.getArgumentProfiling().stream()
+                    .map(ClassMethodArgument::getClassName).collect(Collectors.toSet()));
+
+            tobeReloadClasses.retainAll(loadedClasses);
+
+            tobeReloadClasses.forEach(clazz -> {
+                try {
+                    instrumentation.retransformClasses(Class.forName(clazz));
+                    logger.info("Reload class [" + clazz + "] success.");
+                } catch (Exception e) {
+                    logger.warn("Reload class [" + clazz + "] failed.", e);
+                }
+            });
         }
 
         List<Profiler> profilers = createProfilers(reporter, arguments, processUuid, appId);

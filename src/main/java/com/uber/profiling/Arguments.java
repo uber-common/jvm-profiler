@@ -101,11 +101,7 @@ public class Arguments {
                 throw new IllegalArgumentException("Argument key should not be empty");
             }
 
-            List<String> list = map.get(key);
-            if (list == null) {
-                list = new ArrayList<>();
-                map.put(key, list);
-            }
+            List<String> list = map.computeIfAbsent(key, k -> new ArrayList<>());
             list.add(strs[1].trim());
         }
 
@@ -198,7 +194,7 @@ public class Arguments {
                     throw new IllegalArgumentException("Invalid argument value: " + str);
                 }
                 String className = str.substring(0, index);
-                String methodName = str.substring(index + 1, str.length());
+                String methodName = str.substring(index + 1);
                 ClassAndMethod classAndMethod = new ClassAndMethod(className, methodName);
                 durationProfiling.add(classAndMethod);
                 logger.info("Got argument value for durationProfiling: " + classAndMethod);

@@ -29,8 +29,8 @@ public class Histogram {
         count.incrementAndGet();
         sum.addAndGet(value);
 
-        min.updateAndGet(x -> value < x ? value : x);
-        max.updateAndGet(x -> value > x ? value : x);
+        min.updateAndGet(x -> Math.min(value, x));
+        max.updateAndGet(x -> Math.max(value, x));
     }
 
     public long getCount() {
