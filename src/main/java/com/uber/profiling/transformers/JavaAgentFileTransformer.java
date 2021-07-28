@@ -149,7 +149,6 @@ public class JavaAgentFileTransformer implements ClassFileTransformer {
                 method.insertAfter("{" +
                         "durationMillis_java_agent_instrument = System.currentTimeMillis() - startMillis_java_agent_instrument;" +
                         String.format("try{com.uber.profiling.transformers.MethodProfilerStaticProxy.collectMethodDuration(\"%s\", \"%s\", durationMillis_java_agent_instrument);}catch(Throwable ex){ex.printStackTrace();}", normalizedClassName, method.getName()) +
-                        // "System.out.println(\"Method Executed in ms: \" + durationMillis);" +
                         "}");
             }
 
