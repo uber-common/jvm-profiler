@@ -166,6 +166,7 @@ public class KafkaOutputReporter implements Reporter {
             props.put("buffer.memory", 16384000);
             props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             props.put("value.serializer", org.apache.kafka.common.serialization.ByteArraySerializer.class.getName());
+            props.put("client.id", "jvm-profilers");
 
             if (syncMode) {
                 props.put("acks", "all");
