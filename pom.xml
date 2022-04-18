@@ -21,7 +21,7 @@
 
     <properties>
         <encoding>UTF-8</encoding>
-        <kafka.version>2.0.1</kafka.version>
+        <kafka.version>3.0.1</kafka.version>
     </properties>
 
     <repositories>
