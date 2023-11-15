@@ -1,11 +1,6 @@
 package com.uber.profiling.reporters;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,6 +17,7 @@ public class DatadogOutputReporter implements Reporter {
     private String prefix = "";
     private String hostname = "localhost";
     private int port = 8125;
+    private String[] tags = new String[] {};
 
     @Override
     public void report(String profilerName, Map<String, Object> metrics) {
@@ -67,7 +63,7 @@ public class DatadogOutputReporter implements Reporter {
     private void ensureStatsdConn() {
         synchronized (this) {
             if (statsdClient == null) {
-                statsdClient = new NonBlockingStatsDClient(prefix, hostname, port);
+                statsdClient = new NonBlockingStatsDClient(prefix, hostname, port, tags);
             }
         }
     }
@@ -96,6 +92,10 @@ public class DatadogOutputReporter implements Reporter {
                   case "datadog.statsd.port":
                     logger.info("Got value for port = " + stringValue);
                     this.port = Integer.parseInt(stringValue);
+                    break;
+                  case "datadog.statsd.tags":
+                    logger.info("Got value for tags = " + stringValue);
+                    this.tags = stringValue.split(";");
                     break;
                 }
             }

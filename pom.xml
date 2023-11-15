@@ -5,7 +5,7 @@
     <groupId>com.uber</groupId>
     <artifactId>jvm-profiler</artifactId>
     <!-- Please update AgentImpl.VERSION as well for same version -->
-    <version>1.0.0</version>
+    <version>1.0.0-lbc-build-2</version>
     <packaging>jar</packaging>
 
     <name>uber-jvm-profiler</name>
