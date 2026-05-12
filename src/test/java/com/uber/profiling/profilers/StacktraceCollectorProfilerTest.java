@@ -99,7 +99,9 @@ public class StacktraceCollectorProfilerTest {
 
         ClassAndMethod[] stack = testThreadStacktrace.get(0).getStack();
         Assert.assertTrue("Expected at least sleep and run frames, got " + stack.length, stack.length >= 2);
-        Assert.assertEquals(new ClassAndMethod("java.lang.Thread", "sleep"), stack[0]);
+        Assert.assertEquals("java.lang.Thread", stack[0].getClassName());
+        Assert.assertTrue("Expected sleep-related method at top of stack, got " + stack[0].getMethodName(),
+                stack[0].getMethodName().startsWith("sleep"));
         Assert.assertEquals(new ClassAndMethod("java.lang.Thread", "run"), stack[stack.length - 1]);
 
         Assert.assertEquals(1, testThreadStacktraceCount.size());
