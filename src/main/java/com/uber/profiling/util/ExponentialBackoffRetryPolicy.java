@@ -60,7 +60,8 @@ public class ExponentialBackoffRetryPolicy<T> {
       try {
         Thread.sleep(sleepTime);
       } catch (InterruptedException ex) {
-        logger.warn("Sleep interrupted", ex);
+        Thread.currentThread().interrupt();
+        throw new RuntimeException("Retry sleep interrupted", ex);
       }
       try {
         return operation.call();
